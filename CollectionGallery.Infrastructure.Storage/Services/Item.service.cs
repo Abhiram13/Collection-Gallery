@@ -54,7 +54,7 @@ public class ItemService : GoogleStorageService
         StorageObject obj = new StorageObject
         {
             Bucket = _bucketName,
-            Name = "",
+            Name = meta.FileName,
             ContentType = meta.ContentType,
         };
 

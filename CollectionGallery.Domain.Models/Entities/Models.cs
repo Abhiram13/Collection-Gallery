@@ -9,11 +9,11 @@ public abstract class DBTable
     [JsonPropertyName("id")]
     public int Id { get; init; }
 
-    [Column("createdAt")]
+    [Column("created_at")]
     [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-    [Column("updatedAt")]
+    [Column("updated_at")]
     [JsonPropertyName("updatedAt")]
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
 }

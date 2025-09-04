@@ -13,14 +13,14 @@ public class Item : DBTable
     [JsonPropertyName("extension")]
     public string Extension { get; set; } = string.Empty;
 
-    [Column("modelId")]
+    [Column("model_id")]
     [JsonPropertyName("modelId")]
     public int ModelId { get; set; }
 
     [ForeignKey("ModelId")]
     public Model Models { get; set; } = default!;
 
-    [Column("parentCollectionId")]
+    [Column("parent_collection_id")]
     [JsonPropertyName("parentCollectionId")]
     public int? ParentCollectionId { get; set; } = null;
 

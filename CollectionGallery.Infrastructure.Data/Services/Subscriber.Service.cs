@@ -2,6 +2,7 @@ using System.Text.Json;
 using CollectionGallery.Domain.Models.Controllers;
 using Google.Cloud.PubSub.V1;
 using CollectionGallery.Shared;
+using CollectionGallery.Domain.Models.Enums;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
@@ -33,13 +34,16 @@ public class SubscriberService
                 if (resultObject is not null)
                 {
                     Logger.LogInformation($"Received message at {subscriber.SubscriptionName} subscriber with Trace ID: {traceId}");
-                    await _fileService.InsertFileAsync(resultObject);
+                    MethodStatus status = await _fileService.InsertFileAsync(resultObject);
+                    return SubscriberClient.Reply.Ack;
                 }
                 else
                 {
                     Logger.LogWarning($"No Data {text} was received to the Subscriber {subscriber} with Trace ID {traceId}");
+                    return SubscriberClient.Reply.Nack;
                 }
             }
+            
             return SubscriberClient.Reply.Ack;
         });
 

@@ -13,7 +13,7 @@ public class FileMeta
     public IFormFile File { get; init; }
 
     /// <summary>
-    /// The original name of the file as it was uploaded by the user (e.g., "my-report").
+    /// The original name of the file as it was uploaded by the user (e.g., "my-report.jpg").
     /// </summary>
     public string FileName { get; set; } = string.Empty;
 
@@ -55,7 +55,6 @@ public class FileMeta
         ContentType = File.ContentType;
         SizeInBytes = File.Length;
         Extension = Path.GetExtension(File.FileName);
-        // FilePath = SetFilePath();
         SizeInKB = GetSizeInKB();
     }
 

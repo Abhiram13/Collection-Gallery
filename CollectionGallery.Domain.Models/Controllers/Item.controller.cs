@@ -13,10 +13,10 @@ public class FileUploadForm
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// The path of the folder where the file will be saved.
-    /// This value can be null, indicating a default or root directory.
+    /// The Id of the collection where the file will be saved.
+    /// This value can be null, indicating a default or root collection.
     /// </summary>
-    public int? Folder { get; set; } = null;
+    public int? CollectionId { get; set; } = null;
 
     /// <summary>
     /// The uploaded file itself, encapsulated in an <see cref="IFormFile"/> interface.
@@ -28,7 +28,8 @@ public class FileUploadResultObject
 {
     public required string ContentType { get; set; }
     public required string FileName { get; set; }
+    public int CollectionId { get; set; } = 0;
     public required string Extension { get; set; }
-    public required string ModelName { get; set; }
+    public required string Model { get; set; }
     public required string TraceId { get; set; }
 }
