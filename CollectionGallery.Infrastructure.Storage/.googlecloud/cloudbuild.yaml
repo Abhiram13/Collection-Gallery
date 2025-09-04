@@ -1,0 +1,50 @@
+steps:
+  # Step 1: Access the secret and store it in a file
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Access Secret'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud secrets versions access latest --secret=NUGET_PAT > nuget_pat.txt
+
+  # Step 2: Build the Docker image and pass NUGET_PAT as build arg
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Docker Build'
+    args:
+        - 'build'
+        - '-t'
+        - '$_LOCATION-docker.pkg.dev/$_PROJECT_ID/$_REPOSITORY/$_IMAGE:$COMMIT_SHA'
+        - '-f'
+        - 'CollectionGallery.Infrastructure.Storage/Dockerfile'
+        - '--build-arg'
+        - 'NUGET_PAT=$_NUGET_PAT'
+        - '.'        
+
+  # Step 3: Push the image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Docker Push'
+    args: ['push', '$_LOCATION-docker.pkg.dev/$_PROJECT_ID/$_REPOSITORY/$_IMAGE:$COMMIT_SHA']
+
+  # Step 4: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    id: 'Deploy to Cloud Run'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'files-cloud-storage-service'
+      - '--image'
+      - '$_LOCATION-docker.pkg.dev/$_PROJECT_ID/$_REPOSITORY/$_IMAGE:$COMMIT_SHA'
+      - '--region'
+      - '$_LOCATION'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+# Optional: declare the image for metadata
+images:
+    - '$_LOCATION-docker.pkg.dev/$_PROJECT_ID/$_REPOSITORY/$_IMAGE:$COMMIT_SHA'
+
+options:
+    logging: CLOUD_LOGGING_ONLY

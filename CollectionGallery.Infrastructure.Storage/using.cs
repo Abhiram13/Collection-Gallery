@@ -1,0 +1,1 @@
+global using StorageObject = Google.Apis.Storage.v1.Data.Object;

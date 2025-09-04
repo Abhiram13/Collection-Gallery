@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <NoWarn>IDE0090</NoWarn> <!-- Use 'new(...)' -->
+        <RootNamespace>CollectionGallery.Infrastructure.Storage</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="abhiram.dotenv" />
+        <PackageReference Include="Google.Cloud.Diagnostics.AspNetCore3" />
+        <PackageReference Include="Google.Cloud.Storage.Control.V2" />
+        <PackageReference Include="Google.Cloud.Storage.V1" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Google.Cloud.PubSub.V1" />
+        <PackageReference Include="SixLabors.ImageSharp" />
+        <PackageReference Include="Swashbuckle.AspNetCore" VersionOverride="6.6.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\CollectionGallery.Domain.Models\CollectionGallery.Domain.Models.csproj" />
+        <ProjectReference Include="..\CollectionGallery.Shared\CollectionGallery.Shared.csproj" />
+    </ItemGroup>
+
+</Project>
