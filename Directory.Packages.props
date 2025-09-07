@@ -1,21 +1,22 @@
 <Project>
-    <PropertyGroup>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageVersion Include="abhiram.dotenv" Version="1.0.1" />
-        <PackageVersion Include="EntityFramework6.Npgsql" Version="6.4.3" />
-        <PackageVersion Include="Google.Cloud.Diagnostics.AspNetCore3" Version="5.2.0" />
-        <PackageVersion Include="Google.Cloud.Functions.Hosting" Version="3.0.1" />
-        <PackageVersion Include="Google.Cloud.PubSub.V1" Version="3.27.0" />
-        <PackageVersion Include="Google.Cloud.Storage.Control.V2" Version="1.4.0" />
-        <PackageVersion Include="Google.Cloud.Storage.V1" Version="4.13.0" />
-        <PackageVersion Include="Google.Events.Protobuf" Version="1.8.0" />
-        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.12" />
-        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.19" />
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.19" />
-        <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.1" />
-        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
-        <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.11" />
-    </ItemGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Abhiram.Abstractions.Logging" Version="1.0.1" />
+    <PackageVersion Include="Abhiram.Extensions.DotEnv" Version="1.1.0" />
+    <PackageVersion Include="EntityFramework6.Npgsql" Version="6.4.3" />
+    <PackageVersion Include="Google.Cloud.Diagnostics.AspNetCore3" Version="5.2.0" />
+    <PackageVersion Include="Google.Cloud.Functions.Hosting" Version="3.0.1" />
+    <PackageVersion Include="Google.Cloud.PubSub.V1" Version="3.27.0" />
+    <PackageVersion Include="Google.Cloud.Storage.Control.V2" Version="1.4.0" />
+    <PackageVersion Include="Google.Cloud.Storage.V1" Version="4.13.0" />
+    <PackageVersion Include="Google.Events.Protobuf" Version="1.8.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.12" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.19" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.19" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.11" />
+  </ItemGroup>
 </Project>

@@ -10,11 +10,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Abhiram.Abstractions.Logging" />
+        <PackageReference Include="Abhiram.Extensions.DotEnv" />
         <PackageReference Include="EntityFramework6.Npgsql" />    
         <PackageReference Include="Google.Cloud.Diagnostics.AspNetCore3" />
         <PackageReference Include="Google.Cloud.Storage.V1" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-        <PackageReference Include="abhiram.dotenv" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

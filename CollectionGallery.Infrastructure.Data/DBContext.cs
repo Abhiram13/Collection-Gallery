@@ -11,6 +11,8 @@ namespace CollectionGallery.InfraStructure.Data
         public DbSet<Tags> Tags { get; init; }
         public DbSet<Platforms> Platforms { get; init; }
         public DbSet<Collection> Collections { get; init; }
+        public DbSet<ItemTags> ItemTags { get; init; }
+        public DbSet<ItemPlatforms> ItemPlatforms { get; init; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

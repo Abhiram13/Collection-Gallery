@@ -1,6 +1,5 @@
 using Google.Protobuf;
 using Google.Cloud.PubSub.V1;
-using CollectionGallery.Shared;
 
 namespace CollectionGallery.Infrastructure.Storage.Services;
 
@@ -41,6 +40,6 @@ public class PublisherService
 
         // Publish the request message.
         await requestPublisher.PublishAsync(message);
-        Logger.LogInformation($"Message with Trace ID: {traceId} was successfully published");
+        // Logger.LogInformation($"Message with Trace ID: {traceId} was successfully published");
     }
 }

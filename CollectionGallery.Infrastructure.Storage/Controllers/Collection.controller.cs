@@ -2,7 +2,6 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using CollectionGallery.Infrastructure.Storage.Services;
 using CollectionGallery.Domain.Models.Controllers;
-using CollectionGallery.Shared;
 
 namespace Storage.Controllers;
 
@@ -18,17 +17,17 @@ public class CollectionController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateFolderAsync([FromBody] FolderCreateForm form)
+    public async Task<IActionResult> CreateFolderAsync([FromBody] ParentCollections form)
     {
         try
         {
             await _service.CreateFolderAsync(form.Name);
-            Logger.LogInformation($"Folder ({form.Name}) was successfully created");
+            // Logger.LogInformation($"Folder ({form.Name}) was successfully created");
             return Ok("Folder created successfully");
         }
         catch (Grpc.Core.RpcException ex)
         {
-            Logger.LogError(ex, ex.Message);
+            // Logger.LogError(ex, ex.Message);
 
             if (ex.StatusCode == Grpc.Core.StatusCode.AlreadyExists)
             {
@@ -39,7 +38,7 @@ public class CollectionController : ControllerBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, ex.Message);
+            // Logger.LogError(ex, ex.Message);
             return StatusCode(500, "Something went wrong. Please check the logs");
         }
     }

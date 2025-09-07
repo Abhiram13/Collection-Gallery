@@ -22,6 +22,16 @@ public class FileUploadForm
     /// The uploaded file itself, encapsulated in an <see cref="IFormFile"/> interface.
     /// </summary>
     public required IFormFile File { get; set; } = null!;
+
+    /// <summary>
+    /// The list of tags the file is associated with
+    /// </summary>
+    public List<int>? Tags { get; set; } = null;
+
+    /// <summary>
+    /// The list of platforms the file is associated with
+    /// </summary>
+    public List<int>? Platforms { get; set; } = null;
 }
 
 public class FileUploadResultObject
@@ -32,4 +42,6 @@ public class FileUploadResultObject
     public required string Extension { get; set; }
     public required string Model { get; set; }
     public required string TraceId { get; set; }
+    public List<int>? Tags { get; set; } = null;
+    public List<int>? Platforms { get; set; } = null;
 }

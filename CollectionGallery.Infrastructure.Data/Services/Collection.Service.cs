@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using CollectionGallery.Domain.Models.Entities;
 using CollectionGallery.Domain.Models.Enums;
 using CollectionGallery.Domain.Models.Controllers;
-using CollectionGallery.Shared;
+using System.Data.Common;
+using Npgsql;
+using System.Text.Json;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
@@ -10,79 +12,117 @@ public class CollectionService
 {
     private readonly CollectionGalleryContext _context;
     private readonly DbSet<Collection> _collectionDataSet;
+    private readonly ILogger<CollectionService> _logger;
     private DateTime _dateTime;
 
-    public CollectionService(CollectionGalleryContext context)
+    public CollectionService(CollectionGalleryContext context, ILogger<CollectionService> logger)
     {
         _context = context;
         _collectionDataSet = _context.Collections;
+        _logger = logger;
     }
 
-    public async Task<Collection> InsertAsync(Collection folder)
+    // TODO: Check for valid Parent Folder ID
+    // TODO: Add Validations
+    public async Task<Collection> InsertAsync(Collection collection)
     {
-        await _collectionDataSet.AddAsync(folder);
+        Collection? existingCollection = await GetCollectionByName(collection.Name);
+
+        if (existingCollection is not null)
+        {
+            _logger.LogWarning("Collection ({0}) already exists. Hence skipping at inserting in DB", collection.Name);
+            return existingCollection;
+        }
+
+        await _collectionDataSet.AddAsync(collection);
         await _context.SaveChangesAsync();
-        return folder;
+        return collection;
     }
 
-    private async Task<Collection> GetOrSetFolders(string collectionName, int? parentCollectionId = null)
+    private async Task<Collection?> GetCollectionByName(string collectionName)
     {
-        try
-        {
-            System.Linq.Expressions.Expression<Func<Collection, bool>> predicate = parentCollectionId is null
-                ? f => f.Name.ToLower() == collectionName.ToLower()
-                : f => f.Name.ToLower() == collectionName.ToLower() && f.ParentCollectionId == parentCollectionId;
-
-            Collection? collection = await _collectionDataSet.Where(predicate).FirstOrDefaultAsync();
-            collection ??= await InsertAsync(new Collection { Name = collectionName, CreatedAt = _dateTime, UpdatedAt = _dateTime, ParentCollectionId = parentCollectionId });
-            return collection;
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, e.Message);
-            throw;
-        }
+        Collection? collection = await _collectionDataSet.FirstOrDefaultAsync(c => c.Name.ToLower() == collectionName.ToLower());
+        return collection;
     }
 
-    /// <summary>
-    /// Gets or sets the folder hierarchy in the database based on the file paths in the provided result object.
-    /// </summary>
-    /// <param name="resultObject">The object containing the file paths (original, medium, and small) to process.</param>
-    /// <param name="utcNow">The current UTC timestamp to be used for date-related operations.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task<List<(int? parentFolderId, FileSize size)>> GetOrSetFolderHierachyAsync(FileUploadResultObject resultObject, DateTime utcNow)
+    public async Task<List<ParentCollections>> ListOfParentCollections()
     {
-        _dateTime = utcNow;
-        List<(string path, FileSize size)> urls = new List<(string, FileSize)> {
-            // (resultObject.OriginalFilePath, FileSize.Original),
-            // (resultObject.MediumFilePath, FileSize.Medium),
-            // (resultObject.SmallFilePath, FileSize.Small),
-        };
+        List<ParentCollections> parentCollections = await _collectionDataSet
+            .Where(c => c.ParentCollectionId == null)
+            .Select(c => new ParentCollections { CollectionPic = c.CollectionPic, Id = c.Id, Name = c.Name })
+            .ToListAsync();
 
-        List<(int? parentFolderId, FileSize size)> result = new List<(int? parentFolderId, FileSize size)>();
+        return parentCollections;
+    }
 
-        Logger.LogInformation("Hello");
+    public async Task<CollectionDetailsById> CollectionsById(int id)
+    {
+        const string QUERY = @"
+            SELECT 
+                parent.id, parent.name, parent.created_at, parent.updated_at, parent.collection_pic,
+                COALESCE(
+                    (
+                        SELECT JSON_AGG(JSON_BUILD_OBJECT('id', item.id, 'name', item.name))
+                        FROM items item
+                        WHERE item.parent_collection_id = parent.id
+                    ), '[]'::json
+                ) AS itemsP,
+                COALESCE(
+                    (
+                        SELECT JSON_AGG(JSON_BUILD_OBJECT('id', platform.id, 'name', platform.name))
+                        FROM platforms platform
+                        WHERE platform.id IN (
+                            SELECT ip.platform_id 
+                            FROM itemplatforms ip
+                            JOIN items i ON i.id = ip.item_id
+                            WHERE i.parent_collection_id = parent.id
+                        )
+                    ), '[]'::json
+                ) AS itemPlat,
+                COALESCE(
+                    (
+                        SELECT JSON_AGG(JSON_BUILD_OBJECT('id', child.id, 'name', child.name, 'collectionPic', child.collection_pic))
+                        FROM collections child
+                        WHERE child.parent_collection_id = parent.id
+                    ), '[]'::json
+                ) AS childCollection
+                FROM collections parent
+                WHERE parent.id = @ParentId
+                GROUP BY parent.id;
+        ";
 
-        foreach ((string path, FileSize size) url in urls)
+        _context.Database.OpenConnection();
+        DbConnection connection = _context.Database.GetDbConnection();
+        CollectionDetailsById details = new CollectionDetailsById();
+        JsonSerializerOptions options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        using (DbCommand command = connection.CreateCommand())
         {
-            Logger.LogInformation(url.path);
-            string? directory = Path.GetDirectoryName(url.path) ?? "";
-            string[] folders = directory.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-            int? parentFolderId = null;
-
-            foreach (string folder in folders)
+            command.CommandText = QUERY;
+            NpgsqlParameter parameter = new NpgsqlParameter
             {
-                Collection insertResult = await GetOrSetFolders(folder, parentFolderId);
-                parentFolderId = insertResult.Id;
-            }
+                ParameterName = "@ParentId",
+                Value = id,
+                Direction = System.Data.ParameterDirection.Input,
+                DbType = System.Data.DbType.Int32,
+            };
 
-            Logger.LogInformation(result);
-            if (!result.Contains((parentFolderId, url.size)))
+            command.Parameters.Add(parameter);
+            using (DbDataReader? reader = await command.ExecuteReaderAsync())
             {
-                result.Add((parentFolderId, url.size));
+                while (await reader.ReadAsync())
+                {
+                    details.Id = reader.GetInt32(0);
+                    details.Name = reader.GetString(1);
+                    details.CreatedAt = reader.GetDateTime(2);
+                    details.UpdatedAt = reader.GetDateTime(3);
+                    details.CollectionPic = reader.IsDBNull(4) ? "" : reader.GetString(4);
+                    details.Items = JsonSerializer.Deserialize<List<CollectionDetailsById.CollectionItems>>(reader.GetString(5), options) ?? new();
+                    details.Platforms = JsonSerializer.Deserialize<List<CollectionDetailsById.CollectionPlatforms>>(reader.GetString(6), options) ?? new();
+                    details.Collections = JsonSerializer.Deserialize<List<CollectionDetailsById.ChildCollection>>(reader.GetString(7), options) ?? new();
+                }
             }
         }
 
-        return result;
+        return details;
     }
 }

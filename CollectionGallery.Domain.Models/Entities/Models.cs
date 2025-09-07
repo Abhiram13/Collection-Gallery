@@ -11,11 +11,13 @@ public abstract class DBTable
 
     [Column("created_at")]
     [JsonPropertyName("createdAt")]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DateTime? CreatedAt { get; set; } = DateTime.Now;
 
     [Column("updated_at")]
     [JsonPropertyName("updatedAt")]
-    public DateTime UpdatedAt { get; set; } = DateTime.Now;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DateTime? UpdatedAt { get; set; } = DateTime.Now;
 }
 
 [Table("models")]

@@ -35,20 +35,30 @@ public class Item : DBTable
     public List<ItemPlatforms> FilePlatforms { get; set; } = new List<ItemPlatforms>();
 }
 
+[Table("itemtags")]
 public class ItemTags
 {
+    [Column("item_id")]
+    [JsonPropertyName("itemId")]
     public int ItemId { get; set; }
     public Item Item { get; set; } = default!;
 
+    [Column("tag_id")]
+    [JsonPropertyName("tagId")]
     public int TagId { get; set; }
     public Tags Tag { get; set; } = default!;
 }
 
+[Table("itemplatforms")]
 public class ItemPlatforms
 {
+    [Column("item_id")]
+    [JsonPropertyName("itemId")]
     public int ItemId { get; set; }
     public Item Item { get; set; } = default!;
 
+    [Column("platform_id")]
+    [JsonPropertyName("platformId")]
     public int PlatformId { get; set; }
     public Platforms Platform { get; set; } = default!;
 }

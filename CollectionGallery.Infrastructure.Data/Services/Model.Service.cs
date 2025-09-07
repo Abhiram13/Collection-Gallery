@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using CollectionGallery.Domain.Models.Entities;
-using CollectionGallery.Shared;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
@@ -27,14 +26,14 @@ public class ModelService
 
         if (existingModel is not null)
         {
-            Logger.LogWarning($"Skipping model creation. Model '{model.Name}' entry already exists. TraceID: {traceId}");
+            // Logger.LogWarning($"Skipping model creation. Model '{model.Name}' entry already exists. TraceID: {traceId}");
             return existingModel;
         }
         
         await _modelDataSet.AddAsync(model);
         await _context.SaveChangesAsync();
         
-        Logger.LogInformation($"Model '{model.Name}' was successfully added. TraceId: {traceId}");
+        // Logger.LogInformation($"Model '{model.Name}' was successfully added. TraceId: {traceId}");
         return model;
     }
 }

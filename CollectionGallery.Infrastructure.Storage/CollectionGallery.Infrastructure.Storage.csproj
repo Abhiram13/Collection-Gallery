@@ -9,7 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="abhiram.dotenv" />
+        <PackageReference Include="Abhiram.Abstractions.Logging" />
+        <PackageReference Include="Abhiram.Extensions.DotEnv" />
         <PackageReference Include="Google.Cloud.Diagnostics.AspNetCore3" />
         <PackageReference Include="Google.Cloud.Storage.Control.V2" />
         <PackageReference Include="Google.Cloud.Storage.V1" />

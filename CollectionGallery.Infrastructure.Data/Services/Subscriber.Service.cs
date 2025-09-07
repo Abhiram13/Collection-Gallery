@@ -1,8 +1,8 @@
 using System.Text.Json;
 using CollectionGallery.Domain.Models.Controllers;
 using Google.Cloud.PubSub.V1;
-using CollectionGallery.Shared;
 using CollectionGallery.Domain.Models.Enums;
+using Google.Apis.Storage.v1;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
@@ -11,12 +11,14 @@ public class SubscriberService
     private readonly FileService _fileService;
     private readonly string _subscriberId;
     private readonly string _projectId;
+    private readonly ILogger<StorageService> _logger;
 
-    public SubscriberService(FileService service)
+    public SubscriberService(FileService service, ILogger<StorageService> logger)
     {
         _fileService = service;
         _projectId = Environment.GetEnvironmentVariable("GOOGLE_CLOUD_PROJECT_ID") ?? "";
         _subscriberId = "files-management-sub";
+        _logger = logger;
     }
 
     public async Task SubscribeAsync()
@@ -33,13 +35,13 @@ public class SubscriberService
                 FileUploadResultObject? resultObject = JsonSerializer.Deserialize<FileUploadResultObject>(text);
                 if (resultObject is not null)
                 {
-                    Logger.LogInformation($"Received message at {subscriber.SubscriptionName} subscriber with Trace ID: {traceId}");
+                    _logger.LogInformation($"Received message at {subscriber.SubscriptionName} subscriber with Trace ID: {traceId}");
                     MethodStatus status = await _fileService.InsertFileAsync(resultObject);
                     return SubscriberClient.Reply.Ack;
                 }
                 else
                 {
-                    Logger.LogWarning($"No Data {text} was received to the Subscriber {subscriber} with Trace ID {traceId}");
+                    _logger.LogWarning($"No Data {text} was received to the Subscriber {subscriber} with Trace ID {traceId}");
                     return SubscriberClient.Reply.Nack;
                 }
             }
@@ -47,7 +49,6 @@ public class SubscriberService
             return SubscriberClient.Reply.Ack;
         });
 
-        Console.WriteLine($"Listening for messages on {subscriptionName}");
-        Console.ReadKey(); // Keep the subscriber running
+        _logger.LogInformation($"Listening for messages on {subscriptionName}");
     }
 }
