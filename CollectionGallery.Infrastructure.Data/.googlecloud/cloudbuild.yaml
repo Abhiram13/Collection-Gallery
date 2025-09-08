@@ -7,7 +7,7 @@ steps:
         - '-t'
         - '$_LOCATION-docker.pkg.dev/$_PROJECT_ID/$_REPOSITORY/$_IMAGE:$COMMIT_SHA'
         - '-f'
-        - 'CollectionGallery.Infrastructure.Storage/Dockerfile'
+        - 'CollectionGallery.Infrastructure.Data/Dockerfile'
         - '--build-arg'
         - 'NUGET_PAT=$_NUGET_PAT'
         - '.'        
@@ -24,7 +24,7 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'collection-gallery-storage'
+      - 'collection-gallery-apis'
       - '--image'
       - '$_LOCATION-docker.pkg.dev/$_PROJECT_ID/$_REPOSITORY/$_IMAGE:$COMMIT_SHA'
       - '--region'
