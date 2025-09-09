@@ -66,7 +66,7 @@ public class CollectionService
                         FROM items item
                         WHERE item.parent_collection_id = parent.id
                     ), '[]'::json
-                ) AS itemsP,
+                ) AS collectionItems,
                 COALESCE(
                     (
                         SELECT JSON_AGG(JSON_BUILD_OBJECT('id', platform.id, 'name', platform.name))
@@ -78,7 +78,7 @@ public class CollectionService
                             WHERE i.parent_collection_id = parent.id
                         )
                     ), '[]'::json
-                ) AS itemPlat,
+                ) AS collectionPlatforms,
                 COALESCE(
                     (
                         SELECT JSON_AGG(JSON_BUILD_OBJECT('id', child.id, 'name', child.name, 'collectionPic', child.collection_pic))
@@ -95,6 +95,7 @@ public class CollectionService
         DbConnection connection = _context.Database.GetDbConnection();
         CollectionDetailsById details = new CollectionDetailsById();
         JsonSerializerOptions options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        string? STORAGE_HOST = Environment.GetEnvironmentVariable("STORAGE_SERVER");
         using (DbCommand command = connection.CreateCommand())
         {
             command.CommandText = QUERY;
@@ -120,6 +121,11 @@ public class CollectionService
                     details.Platforms = JsonSerializer.Deserialize<List<CollectionDetailsById.CollectionPlatforms>>(reader.GetString(6), options) ?? new();
                     details.Collections = JsonSerializer.Deserialize<List<CollectionDetailsById.ChildCollection>>(reader.GetString(7), options) ?? new();
                 }
+            }
+
+            foreach (CollectionDetailsById.CollectionItems detail in details.Items)
+            {
+                detail.Name = $"{STORAGE_HOST}/{detail.Name}";
             }
         }
 
