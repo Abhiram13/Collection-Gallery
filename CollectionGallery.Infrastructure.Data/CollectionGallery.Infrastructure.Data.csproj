@@ -12,6 +12,7 @@
     <ItemGroup>
         <PackageReference Include="Abhiram.Abstractions.Logging" />
         <PackageReference Include="Abhiram.Extensions.DotEnv" />
+        <PackageReference Include="Abhiram.Secrets.Providers" />
         <PackageReference Include="EntityFramework6.Npgsql" />    
         <PackageReference Include="Google.Cloud.Diagnostics.AspNetCore3" />
         <PackageReference Include="Google.Cloud.Storage.V1" />
