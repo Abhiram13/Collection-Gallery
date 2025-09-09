@@ -12,7 +12,7 @@ DotEnvironmentVariables.Load();
 
 builder.AddConsoleGoogleSeriLog();
 
-// Add services to the container.
+// Add services to the container. 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<CollectionGalleryContext>(options =>
