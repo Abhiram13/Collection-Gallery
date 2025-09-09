@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Google.Cloud.Diagnostics.AspNetCore3;
 using Google.Cloud.Diagnostics.Common;
@@ -5,52 +6,51 @@ using CollectionGallery.InfraStructure.Data;
 using CollectionGallery.InfraStructure.Data.Services;
 using Abhiram.Extensions.DotEnv;
 using Abhiram.Abstractions.Logging;
-using System.Net;
+using Abhiram.Secrets.Providers;
+using Abhiram.Secrets.Providers.Interface;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 DotEnvironmentVariables.Load();
 
 builder.AddConsoleGoogleSeriLog();
-
-// Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<CollectionGalleryContext>(options =>
-{
-    string? postgresHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
-    string? postgresPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
-    string? postgresDatabase = Environment.GetEnvironmentVariable("POSTGRES_DATABASE");
-    string? postgresUsername = Environment.GetEnvironmentVariable("POSTGRES_USERNAME");
-    string? postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
-    string? postgresConnectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresDatabase};Username={postgresUsername};Password={postgresPassword}";
-    options
-        .UseNpgsql(postgresConnectionString)
-        .LogTo(_ => { }, LogLevel.Warning);
-});
 builder.Services.AddControllers();
 builder.Services.AddRouting();
+builder.Services.AddHostedService<SubscriberBackgroundService>();
+builder.Services.AddScoped<ISecretManager, SecretManagerService>();
 builder.Services.AddScoped<SubscriberService>();
 builder.Services.AddScoped<ModelService>();
 builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<CollectionService>();
 builder.Services.AddScoped<PlatformService>();
 builder.Services.AddScoped<TagService>();
+builder.Services.AddDbContext<CollectionGalleryContext>(async (provider, options) =>
+{    
+    ISecretManager secretManager = provider.GetRequiredService<ISecretManager>();
+    string? postgresHost = await secretManager.GetSecretAsync("POSTGRES_HOST");
+    string? postgresPort = await secretManager.GetSecretAsync("POSTGRES_PORT");
+    string? postgresDatabase = await secretManager.GetSecretAsync("POSTGRES_DATABASE");
+    string? postgresUsername = await secretManager.GetSecretAsync("POSTGRES_USERNAME");
+    string? postgresPassword = await secretManager.GetSecretAsync("POSTGRES_PASSWORD");
+    string? postgresConnectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresDatabase};Username={postgresUsername};Password={postgresPassword}";
+    options
+        .UseNpgsql(postgresConnectionString)
+        .LogTo(_ => { }, LogLevel.Warning);
+});
 
 WebApplication app = builder.Build();
-
-// TODO: FIX THIS SCOPING. IT SHOULD BE SINGLETON
-using (var scope = app.Services.CreateScope())
+using (IServiceScope? scope = app.Services.CreateScope())
 {
+    ILogger<Program> logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     try
     {
         CollectionGalleryContext context = scope.ServiceProvider.GetRequiredService<CollectionGalleryContext>();
-        SubscriberService service = scope.ServiceProvider.GetRequiredService<SubscriberService>();
-        // await service.SubscribeAsync(); // TODO: This is blocking the server running state
         context.Database.Migrate();
     }
     catch (Exception e)
     {
-        Console.WriteLine(e);
+        logger.LogCritical(e, "Exception at DB Migrate Setup ({0})", e.Message);
     }
 }
 
