@@ -24,7 +24,11 @@ public class SubscriberBackgroundService : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
 
                 var subscriberService = scope.ServiceProvider.GetRequiredService<SubscriberService>();
-                await subscriberService.SubscribeAsync(); // Keep listening
+                await subscriberService.SubscribeAsync(stoppingToken); // Keep listening
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("SubscriberBackgroundService is stopping due to cancellation.");
             }
             catch (Exception ex)
             {

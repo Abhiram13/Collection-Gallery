@@ -6,7 +6,7 @@ public class CollectionCreateForm
     [JsonPropertyName("name")]
     public required string Name { get; set; }
 
-    [JsonPropertyName("parentCollection")]
+    [JsonPropertyName("parent_collection")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public string? ParentFolderName { get; set; } = null;
 }
@@ -19,7 +19,7 @@ public class ParentCollections
     [JsonPropertyName("name")]
     public string Name { get; init; } = string.Empty;
 
-    [JsonPropertyName("collectionPic")]
+    [JsonPropertyName("collection_pic")]
     public string? CollectionPic { get; init; } = string.Empty;
 }
 
@@ -31,19 +31,19 @@ public class CollectionDetailsById
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
-    [JsonPropertyName("collectionPic")]
+    [JsonPropertyName("collection_pic")]
     public string CollectionPic { get; set; } = string.Empty;
 
-    [JsonPropertyName("updatedAt")]
+    [JsonPropertyName("updated_at")]
     public DateTime? UpdatedAt { get; set; } = DateTime.Now;
 
-    [JsonPropertyName("createdAt")]
+    [JsonPropertyName("created_at")]
     public DateTime? CreatedAt { get; set; } = DateTime.Now;
 
     [JsonPropertyName("platform")]
     public List<CollectionPlatforms> Platforms { get; set; } = new List<CollectionPlatforms>();
 
-    [JsonPropertyName("childCollections")]
+    [JsonPropertyName("child_collections")]
     public List<ChildCollection> Collections { get; set; } = new List<ChildCollection>();
 
     [JsonPropertyName("items")]
@@ -69,7 +69,7 @@ public class CollectionDetailsById
         [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("collectionPic")]
+        [JsonPropertyName("collection_pic")]
         public string CollectionPic { get; set; } = string.Empty;
     }
 

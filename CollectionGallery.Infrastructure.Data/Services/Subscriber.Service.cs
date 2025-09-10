@@ -21,12 +21,12 @@ public class SubscriberService
         _logger = logger;
     }
 
-    public async Task SubscribeAsync()
+    public async Task SubscribeAsync(CancellationToken cancellationToken)
     {
         SubscriptionName subscriptionName = SubscriptionName.FromProjectSubscription(_projectId, _subscriberId);
         SubscriberClient subscriber = await SubscriberClient.CreateAsync(subscriptionName);
         
-        await subscriber.StartAsync(async (PubsubMessage message, CancellationToken _) =>
+        Task subscriberTask = subscriber.StartAsync(async (PubsubMessage message, CancellationToken _) =>
         {
             string text = System.Text.Encoding.UTF8.GetString(message.Data.ToArray());
             string traceId = message.Attributes["trace-id"];
@@ -48,6 +48,17 @@ public class SubscriberService
             
             return SubscriberClient.Reply.Ack;
         });
+
+        try
+        {
+            await Task.Delay(Timeout.Infinite, cancellationToken); // Keeps it alive
+        }
+        catch (OperationCanceledException)
+        {
+            await subscriber.StopAsync(CancellationToken.None); // Stop listener
+        }
+
+        await subscriberTask;
 
         _logger.LogInformation($"Listening for messages on {subscriptionName}");
     }

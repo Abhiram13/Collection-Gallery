@@ -131,4 +131,35 @@ public class CollectionService
 
         return details;
     }
+
+    private async Task<bool> IsCollectionExist(int collectionId)
+    {
+        int collectionCount = await _collectionDataSet.CountAsync(c => c.Id == collectionId);
+        return collectionCount > 0;
+    }
+
+    public async Task<UpdateFieldResult> UpdateByIdAsync(int collectionId, Collection body)
+    {
+        Collection? existingCollection = await _collectionDataSet.FindAsync(collectionId);
+
+        if (body.ParentCollectionId is not null && body.ParentCollectionId != 0)
+        {
+            bool isParentCollectionExist = await IsCollectionExist(body.ParentCollectionId ?? 0);
+
+            if (isParentCollectionExist == false) return UpdateFieldResult.ParentNotFound;
+        }
+
+        if (existingCollection is null)
+        {
+            return UpdateFieldResult.NotFound;
+        }
+
+        if (!string.IsNullOrEmpty(body.Name)) existingCollection.Name = body.Name;
+        if (body.CollectionPic is not null) existingCollection.CollectionPic = body.CollectionPic;
+        if (body.ParentCollectionId is not null) existingCollection.ParentCollectionId = body.ParentCollectionId;
+        existingCollection.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return UpdateFieldResult.Success;
+    }
 }
