@@ -21,12 +21,12 @@ builder.Services.AddHostedService<SubscriberBackgroundService>();
 builder.Services.AddScoped<ISecretManager, SecretManagerService>();
 builder.Services.AddScoped<SubscriberService>();
 builder.Services.AddScoped<ModelService>();
-builder.Services.AddScoped<FileService>();
+builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<CollectionService>();
 builder.Services.AddScoped<PlatformService>();
 builder.Services.AddScoped<TagService>();
 builder.Services.AddDbContext<CollectionGalleryContext>(async (provider, options) =>
-{    
+{
     ISecretManager secretManager = provider.GetRequiredService<ISecretManager>();
     string? postgresHost = await secretManager.GetSecretAsync("POSTGRES_HOST");
     string? postgresPort = await secretManager.GetSecretAsync("POSTGRES_PORT");
@@ -38,6 +38,7 @@ builder.Services.AddDbContext<CollectionGalleryContext>(async (provider, options
         .UseNpgsql(postgresConnectionString)
         .LogTo(_ => { }, LogLevel.Warning);
 });
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader() ));
 
 WebApplication app = builder.Build();
 using (IServiceScope? scope = app.Services.CreateScope())
@@ -62,5 +63,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
 app.MapControllers();
 app.Run();

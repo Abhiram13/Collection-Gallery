@@ -38,11 +38,11 @@ public class ItemController : ControllerBase
                 Extension = meta.Extension,
                 FileName = meta.FileName,
                 TraceId = TRACE_ID,
-                Model = uploadForm.Name,
+                ModelId = uploadForm.Model,
                 Platforms = uploadForm.Platforms,
                 Tags = uploadForm.Tags
             };
-            await _publisher.PublishMessageAsync(JsonSerializer.Serialize(resultObject), TRACE_ID, "FileUpload");
+            await _publisher.PublishMessageAsync(JsonSerializer.Serialize(resultObject), TRACE_ID, "FileUpload"); // TODO: Change to HTTP?
             return Ok(resultObject);
         }
         catch (Exception e)

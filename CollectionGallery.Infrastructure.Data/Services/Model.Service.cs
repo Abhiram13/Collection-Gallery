@@ -20,20 +20,16 @@ public class ModelService
         return model;
     }
 
-    public async Task<Model> InsertAsync(Model model, string traceId)
+    public async Task<Model> InsertAsync(Model model)
     {
-        Model? existingModel = await SearchByName(model.Name);
-
-        if (existingModel is not null)
-        {
-            // Logger.LogWarning($"Skipping model creation. Model '{model.Name}' entry already exists. TraceID: {traceId}");
-            return existingModel;
-        }
-        
         await _modelDataSet.AddAsync(model);
         await _context.SaveChangesAsync();
-        
-        // Logger.LogInformation($"Model '{model.Name}' was successfully added. TraceId: {traceId}");
         return model;
+    }
+
+    public async Task<List<Model>> ListAsync()
+    {
+        List<Model> list = await _modelDataSet.Select(m => new Model { Name = m.Name, Id = m.Id}).ToListAsync();
+        return list;
     }
 }

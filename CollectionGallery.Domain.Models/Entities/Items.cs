@@ -15,7 +15,7 @@ public class Item : DBTable
 
     [Column("model_id")]
     [JsonPropertyName("modelId")]
-    public int ModelId { get; set; }
+    public int? ModelId { get; set; }
 
     [ForeignKey("ModelId")]
     public Model Models { get; set; } = default!;

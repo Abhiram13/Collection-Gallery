@@ -8,14 +8,14 @@ namespace CollectionGallery.InfraStructure.Data.Services;
 
 public class SubscriberService
 {
-    private readonly FileService _fileService;
+    private readonly ItemService _itemService;
     private readonly string _subscriberId;
     private readonly string _projectId;
     private readonly ILogger<StorageService> _logger;
 
-    public SubscriberService(FileService service, ILogger<StorageService> logger)
+    public SubscriberService(ItemService service, ILogger<StorageService> logger)
     {
-        _fileService = service;
+        _itemService = service;
         _projectId = Environment.GetEnvironmentVariable("GOOGLE_CLOUD_PROJECT_ID") ?? "";
         _subscriberId = "files-management-sub";
         _logger = logger;
@@ -36,7 +36,7 @@ public class SubscriberService
                 if (resultObject is not null)
                 {
                     _logger.LogInformation($"Received message at {subscriber.SubscriptionName} subscriber with Trace ID: {traceId}");
-                    MethodStatus status = await _fileService.InsertFileAsync(resultObject);
+                    MethodStatus status = await _itemService.InsertItemAsync(resultObject);
                     return SubscriberClient.Reply.Ack;
                 }
                 else

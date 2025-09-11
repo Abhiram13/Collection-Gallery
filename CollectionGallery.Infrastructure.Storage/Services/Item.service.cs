@@ -1,4 +1,5 @@
 using CollectionGallery.Infrastructure.Storage.Utilities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CollectionGallery.Infrastructure.Storage.Services;
 
@@ -60,5 +61,33 @@ public class ItemService : GoogleStorageService
 
         StorageObject sobj = await _storageClient.UploadObjectAsync(destination: obj, source: stream);
         return sobj;
+    }
+
+    public async Task<FileStreamResult> GetFileAsync(string fileName)
+    {
+        MemoryStream memoryStream = new MemoryStream();
+        await _storageClient.DownloadObjectAsync(_bucketName, fileName, memoryStream);
+        memoryStream.Position = 0;
+        
+        string contentType = GetContentType(fileName);
+        return new FileStreamResult(memoryStream, contentType)
+        {
+            FileDownloadName = Path.GetFileName(fileName),
+        };
+    }
+    
+    // TODO: See if this can be added as Shared method
+    private string GetContentType(string fileName)
+    {
+        string ext = Path.GetExtension(fileName).ToLowerInvariant();
+        return ext switch
+        {
+            ".jpg" => "image/jpeg",
+            ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".pdf" => "application/pdf",
+            _ => "application/octet-stream"
+        };
     }
 }

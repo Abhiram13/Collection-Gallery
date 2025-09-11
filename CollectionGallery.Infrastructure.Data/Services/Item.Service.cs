@@ -7,16 +7,17 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
-public class FileService
+public class ItemService
 {
     private readonly CollectionGalleryContext _context;
     private readonly ModelService _modelService;
     private readonly CollectionService _collectionService;
     private readonly TagService _tagService;
     private readonly PlatformService _platformService;
-    private readonly ILogger<FileService> _logger;
+    private readonly ILogger<ItemService> _logger;
+    private readonly DbSet<Item> _itemContext;
 
-    public FileService(CollectionGalleryContext context, ModelService service, CollectionService collectionService, ILogger<FileService> logger, TagService tagService, PlatformService platformService)
+    public ItemService(CollectionGalleryContext context, ModelService service, CollectionService collectionService, ILogger<ItemService> logger, TagService tagService, PlatformService platformService)
     {
         _context = context;
         _modelService = service;
@@ -24,9 +25,10 @@ public class FileService
         _logger = logger;
         _tagService = tagService;
         _platformService = platformService;
+        _itemContext = context.Items;
     }
 
-    public async Task<MethodStatus> InsertFileAsync(FileUploadResultObject data)
+    public async Task<MethodStatus> InsertItemAsync(FileUploadResultObject data)
     {
         DatabaseFacade database = _context.Database;
         try
@@ -34,7 +36,7 @@ public class FileService
             using (await database.BeginTransactionAsync())
             {
                 DateTime dateTime = DateTime.UtcNow;
-                Model model = await _modelService.InsertAsync(new Model { Name = data.Model, CreatedAt = dateTime, UpdatedAt = dateTime }, traceId: data.TraceId);
+                // Model model = await _modelService.InsertAsync(new Model { Name = data.Model, CreatedAt = dateTime, UpdatedAt = dateTime });
                 Item? item = await SearchByName(data.FileName);
 
                 if (item is not null)
@@ -47,7 +49,7 @@ public class FileService
                 {
                     CreatedAt = dateTime,
                     Extension = data.Extension,
-                    ModelId = model.Id,
+                    ModelId = data.ModelId,
                     Name = data.FileName,
                     ParentCollectionId = data.CollectionId == 0 ? null : data.CollectionId,
                     UpdatedAt = dateTime,
@@ -75,5 +77,12 @@ public class FileService
     {
         Item? item = await _context.Items.FirstOrDefaultAsync(i => i.Name.ToLower() == fileName.ToLower());
         return item;
+    }
+
+    public async Task<List<ItemList>> ListAsync()
+    {
+        string storageServer = Environment.GetEnvironmentVariable("STORAGE_SERVER")!;
+        List<ItemList> list = await _itemContext.Select(i => new ItemList { id = i.Id, Url = $"{storageServer}/{i.Name}" }).ToListAsync();
+        return list;
     }
 }

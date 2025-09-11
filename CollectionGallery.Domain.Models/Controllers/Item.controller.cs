@@ -8,9 +8,9 @@ namespace CollectionGallery.Domain.Models.Controllers;
 public class FileUploadForm
 {
     /// <summary>
-    /// The name of the Model to associated with
+    /// The Id of the Model to associated with
     /// </summary>    
-    public string Name { get; set; } = string.Empty;
+    public int? Model { get; set; } = null;
 
     /// <summary>
     /// The Id of the collection where the file will be saved.
@@ -40,8 +40,17 @@ public class FileUploadResultObject
     public required string FileName { get; set; }
     public int CollectionId { get; set; } = 0;
     public required string Extension { get; set; }
-    public required string Model { get; set; }
+    public required int? ModelId { get; set; }
     public required string TraceId { get; set; }
     public List<int>? Tags { get; set; } = null;
     public List<int>? Platforms { get; set; } = null;
+}
+
+public class ItemList
+{
+    [JsonPropertyName("id")]
+    public int id { get; init; }
+    
+    [JsonPropertyName("url")]
+    public string Url { get; init; } = string.Empty;
 }
