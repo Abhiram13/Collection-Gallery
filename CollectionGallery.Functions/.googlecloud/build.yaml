@@ -8,7 +8,7 @@ steps:
         '--region=asia-south1', 
         '--entry-point=CollectionGallery.Functions.Services.EntryFunction', 
         '--trigger-topic=collection-gallery-topic',
-        '--source=../../CollectionGallery.Functions'
+        '--source=../'
       ]
 
 options:
