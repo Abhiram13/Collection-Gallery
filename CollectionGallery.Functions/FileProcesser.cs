@@ -17,29 +17,29 @@ namespace CollectionGallery.Functions.Services;
 
 public class EntryFunction : ICloudEventFunction<StorageObjectData>
 {
-    private readonly ILogger _logger;
+    // private readonly ILogger _logger;
 
-    public EntryFunction(ILogger<EntryFunction> logger)
-    {
-        _logger = logger;
-    }
+    // public EntryFunction(ILogger<EntryFunction> logger)
+    // {
+    //     _logger = logger;
+    // }
 
     public async Task HandleAsync(CloudEvent cloudEvent, StorageObjectData data, CancellationToken cancellationToken)
     {
         // Prevent infinite loop: output files are tagged with "processed": "true"
         // to avoid retriggering this function when they’re uploaded back to the bucket.
-        const string KEY = "processed";        
+        // const string KEY = "processed";        
 
-        if (data.Metadata.ContainsKey(KEY))
-        {
-            string isProcessed = data.Metadata[KEY];
+        // if (data.Metadata.ContainsKey(KEY))
+        // {
+        //     string isProcessed = data.Metadata[KEY];
 
-            if (!string.IsNullOrEmpty(isProcessed) && isProcessed == "true")
-            {
-                _logger.LogWarning("File already processed");
-                return;
-            }            
-        }
+        //     if (!string.IsNullOrEmpty(isProcessed) && isProcessed == "true")
+        //     {
+        //         _logger.LogWarning("File already processed");
+        //         return;
+        //     }            
+        // }
 
         // string sourceFileName = data.Name;
         // string sourceBucket = data.Bucket;

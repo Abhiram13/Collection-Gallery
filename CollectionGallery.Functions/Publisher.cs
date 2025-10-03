@@ -1,10 +1,11 @@
 using Google.Protobuf;
+using Google.Cloud.PubSub.V1;
 using System.Threading.Tasks;
 using System;
 
 namespace CollectionGallery.Functions.Services;
 
-[Obsolete("This class is no longer used", error: true)]
+// [Obsolete("This class is no longer used", error: true)]
 public class PublisherService
 {
     private readonly string _topicName = "collection-gallery-topic";
@@ -18,10 +19,11 @@ public class PublisherService
     public async Task PublishMessageAsync(string requestMessage)
     {
         // Create a TopicName object for the request topic.
-        Google.Cloud.PubSub.V1.TopicName requestTopicName = Google.Cloud.PubSub.V1.TopicName.FromProjectTopic("files-management-471014", _topicName);
+        // TopicName requestTopicName = TopicName.FromProjectTopic("files-management-471014", _topicName);
+        TopicName requestTopicName = TopicName.Parse($"projects/files-management-471014/topics/{_topicName}");
 
         // Create a PublisherClient to publish messages to the request topic.
-        Google.Cloud.PubSub.V1.PublisherClient requestPublisher = await Google.Cloud.PubSub.V1.PublisherClient.CreateAsync(requestTopicName);
+        PublisherClient requestPublisher = await PublisherClient.CreateAsync(requestTopicName);
 
         // Generate a unique correlation ID for the request.
         // string correlationId = Guid.NewGuid().ToString();
@@ -31,7 +33,7 @@ public class PublisherService
         // string requestMessage = "Hello, this is from Storage project publisher 👋🏽";
 
         // Create a PubsubMessage object with the request message data.
-        Google.Cloud.PubSub.V1.PubsubMessage message = new Google.Cloud.PubSub.V1.PubsubMessage
+        PubsubMessage message = new PubsubMessage
         {
             Data = ByteString.CopyFromUtf8(requestMessage)
         };
