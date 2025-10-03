@@ -7,18 +7,18 @@ namespace CollectionGallery.Functions.Services;
 [Obsolete("This class is no longer used", error: true)]
 public class PublisherService
 {
-    private readonly string _topicName = "files-management";
+    private readonly string _topicName = "collection-gallery-topic";
     private readonly string _projectId;
 
     public PublisherService()
     {
-        _projectId = Environment.GetEnvironmentVariable("GOOGLE_CLOUD_PROJECT");
+        _projectId = Environment.GetEnvironmentVariable("GOOGLE_CLOUD_PROJECT_ID");
     }
 
     public async Task PublishMessageAsync(string requestMessage)
     {
         // Create a TopicName object for the request topic.
-        Google.Cloud.PubSub.V1.TopicName requestTopicName = Google.Cloud.PubSub.V1.TopicName.FromProjectTopic("budget-tracker-453204", _topicName);
+        Google.Cloud.PubSub.V1.TopicName requestTopicName = Google.Cloud.PubSub.V1.TopicName.FromProjectTopic("files-management-471014", _topicName);
 
         // Create a PublisherClient to publish messages to the request topic.
         Google.Cloud.PubSub.V1.PublisherClient requestPublisher = await Google.Cloud.PubSub.V1.PublisherClient.CreateAsync(requestTopicName);

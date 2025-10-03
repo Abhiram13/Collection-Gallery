@@ -1,0 +1,14 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      [
+        'functions', 'deploy', 'collection-gallery-function',
+        '--gen2',
+        '--runtime=dotnet8', 
+        '--region=asia-south1', 
+        '--entry-point=CollectionGallery.Functions.Services.EntryFunction', 
+        '--trigger-topic=collection-gallery-topic', 
+      ]
+
+options:
+    logging: CLOUD_LOGGING_ONLY
