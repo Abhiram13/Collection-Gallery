@@ -7,7 +7,8 @@ steps:
         '--runtime=dotnet8', 
         '--region=asia-south1', 
         '--entry-point=CollectionGallery.Functions.Services.EntryFunction', 
-        '--trigger-topic=collection-gallery-topic', 
+        '--trigger-topic=collection-gallery-topic',
+        '--source=../../CollectionGallery.Functions'
       ]
 
 options:
