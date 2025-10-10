@@ -3,6 +3,7 @@ using Google.Cloud.Diagnostics.Common;
 using CollectionGallery.Infrastructure.Storage.Services;
 using Abhiram.Extensions.DotEnv;
 using Abhiram.Abstractions.Logging;
+using System.Net;
 
 DotEnvironmentVariables.Load();
 
@@ -10,15 +11,18 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables().Build();
 builder.AddConsoleGoogleSeriLog();
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ItemService>();
 builder.Services.AddSingleton<PublisherService>();
 builder.Services.AddSingleton<ImageService>();
 builder.Services.AddControllers();
+builder.WebHost.ConfigureKestrel((_, server) => {
+    string portNumber = Environment.GetEnvironmentVariable("PORT") ?? "3000";
+    int port = int.Parse(portNumber);
+    server.Listen(IPAddress.Any, port);
+});
+
 WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.

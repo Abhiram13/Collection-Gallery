@@ -1,6 +1,7 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Google.Cloud.Storage.Control.V2;
+using CollectionGallery.Shared;
 
 namespace CollectionGallery.Infrastructure.Storage.Services;
 
@@ -34,8 +35,7 @@ public class GoogleStorageService
     {
         _credential = GoogleCredential.FromFile(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS"));
         _storageClient = StorageClient.Create(_credential);
-        // _storageClient = StorageClient.Create();
-        _bucketName = "models-management-bucket";
+        _bucketName = Constants.StorageBucket;
         _storageControlClient = StorageControlClient.Create();
     }    
 }

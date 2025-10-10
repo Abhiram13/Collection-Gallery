@@ -1,9 +1,11 @@
+using System.Data.Common;
 using System.Text.Json;
 using CollectionGallery.Domain.Models.Controllers;
 using CollectionGallery.Domain.Models.Entities;
 using CollectionGallery.Domain.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Npgsql;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
@@ -54,7 +56,7 @@ public class ItemService
                     ParentCollectionId = data.CollectionId == 0 ? null : data.CollectionId,
                     UpdatedAt = dateTime,
                 };
-                
+
                 await _context.Items.AddAsync(newItem);
                 await _context.SaveChangesAsync();
                 await _tagService.AddItemTagsAsync(newItem.Id, data.Tags);
@@ -82,7 +84,54 @@ public class ItemService
     public async Task<List<ItemList>> ListAsync()
     {
         string storageServer = Environment.GetEnvironmentVariable("STORAGE_SERVER")!;
-        List<ItemList> list = await _itemContext.Select(i => new ItemList { id = i.Id, Url = $"{storageServer}/{i.Name}" }).ToListAsync();
-        return list;
+        List<ItemList> list = await _itemContext.Select(i => new ItemList { Id = i.Id, Url = $"{storageServer}/{i.Name}" }).ToListAsync();
+        List<ItemList> repeated = list.SelectMany(item => Enumerable.Repeat(item, 20)).ToList();
+        return repeated;
+    }
+
+    public async Task<ItemDetails> ItemByIdAsync(int id)
+    {
+        const string QUERY = @"
+            SELECT 
+                i.id AS item_id, 
+                i.name AS item_name, 
+                JSON_AGG(JSONB_BUILD_OBJECT('id', m.id, 'name', m.name)) AS model_name, 
+                JSON_AGG(JSONB_BUILD_OBJECT('id', t.id, 'name', t.name)) AS tags
+            FROM items i
+            LEFT JOIN models m ON m.id = i.model_id
+            LEFT JOIN itemtags it ON it.item_id = i.id
+            LEFT JOIN tags t ON t.id = it.tag_id
+            WHERE i.id = @ItemId
+            GROUP BY i.id, i.name, m.name
+        ";
+
+        _context.Database.OpenConnection();
+        DbConnection connection = _context.Database.GetDbConnection();
+        ItemDetails itemDetails = new ItemDetails();
+        using (DbCommand command = connection.CreateCommand())
+        {
+            command.CommandText = QUERY;
+            NpgsqlParameter parameter = new NpgsqlParameter
+            {
+                ParameterName = "@ItemId",
+                Value = id,
+                Direction = System.Data.ParameterDirection.Input,
+                DbType = System.Data.DbType.Int32,
+            };
+
+            command.Parameters.Add(parameter);
+            using (DbDataReader? reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    itemDetails.Id = reader.GetInt32(0);
+                    itemDetails.Name = reader.GetString(1);
+                    itemDetails.Models = JsonSerializer.Deserialize<List<ItemDetails.SubDetails>>(reader.GetString(2));
+                    itemDetails.Tags = JsonSerializer.Deserialize<List<ItemDetails.SubDetails>>(reader.GetString(3));
+                }
+            }
+        }
+
+        return itemDetails;
     }
 }

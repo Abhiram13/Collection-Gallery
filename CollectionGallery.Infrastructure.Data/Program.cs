@@ -38,7 +38,12 @@ builder.Services.AddDbContext<CollectionGalleryContext>(async (provider, options
         .UseNpgsql(postgresConnectionString)
         .LogTo(_ => { }, LogLevel.Warning);
 });
-builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader() ));
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+builder.WebHost.ConfigureKestrel((_, server) => {
+    string portNumber = Environment.GetEnvironmentVariable("PORT") ?? "3001";
+    int port = int.Parse(portNumber);
+    server.Listen(IPAddress.Any, port);
+});
 
 WebApplication app = builder.Build();
 using (IServiceScope? scope = app.Services.CreateScope())

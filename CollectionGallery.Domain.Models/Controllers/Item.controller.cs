@@ -49,8 +49,32 @@ public class FileUploadResultObject
 public class ItemList
 {
     [JsonPropertyName("id")]
-    public int id { get; init; }
-    
+    public int Id { get; init; }
+
     [JsonPropertyName("url")]
     public string Url { get; init; } = string.Empty;
+}
+
+public class ItemDetails
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("models")]
+    public List<SubDetails>? Models { get; set; } = null;
+
+    [JsonPropertyName("tags")]
+    public List<SubDetails>? Tags { get; set; } = null;
+
+    public class SubDetails
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+    }
 }

@@ -3,6 +3,7 @@ using CollectionGallery.Infrastructure.Storage.Services;
 using CollectionGallery.Domain.Models.Controllers;
 using CollectionGallery.Infrastructure.Storage.Utilities;
 using System.Text.Json;
+using Google;
 
 namespace CollectionGallery.Infrastructure.Storage.Controllers;
 
@@ -25,12 +26,20 @@ public class FileController : ControllerBase
         try
         {
             if (string.IsNullOrEmpty(fileName)) return BadRequest();
-            
-            FileStreamResult result = await _service.GetFileAsync(fileName);
-            
-            Response.Headers["Cache-Control"] = "public, max-age=31536000";
 
+            FileStreamResult result = await _service.GetFileAsync(fileName);
+            Response.Headers["Cache-Control"] = "public, max-age=31536000";
             return result;
+        }
+        catch (GoogleApiException gex)
+        {
+            _logger.LogError(gex, gex.Message);
+            if (gex.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return NotFound();
+            }
+
+            return StatusCode(500);
         }
         catch (Exception e)
         {

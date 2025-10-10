@@ -1,17 +1,13 @@
 using Google.Protobuf;
 using Google.Cloud.PubSub.V1;
+using CollectionGallery.Shared;
 
 namespace CollectionGallery.Infrastructure.Storage.Services;
 
 public class PublisherService
 {
-    private readonly string _topicName = "files-management";
-    private readonly string _projectId;
-
-    public PublisherService()
-    {
-        _projectId = Environment.GetEnvironmentVariable("GOOGLE_CLOUD_PROJECT_ID")!;
-    }
+    private readonly string _topicName = Constants.TopicName;
+    private readonly string _projectId = Constants.ProjectId;
 
     /// <summary>
     /// Publishes a message to a Google Cloud Pub/Sub topic.
