@@ -56,6 +56,15 @@ public class ItemController : ControllerBase
                 Detail = $"Something went wrong while uploading the file. Check the logs for more details. Trace ID: {TRACE_ID}"
             };
             return StatusCode(500, problemDetails);
-        }        
+        }
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> TestApiAsync()
+    {
+        // throw new HttpRequestException("Simulated network failure");
+        return StatusCode(500, "Sample Circuit Breaker");
+        // await Task.Delay(3000);
+        // return Ok("Successfull return ✅");
     }
 }

@@ -26,4 +26,8 @@ public class Model : DBTable
     [Column("name")]
     [JsonPropertyName("name")]
     public required string Name { get; set; } = string.Empty;
+    
+    [Column("_row_version")]
+    [JsonPropertyName("_row_version")]
+    public int RowVersion { get; set; }
 }

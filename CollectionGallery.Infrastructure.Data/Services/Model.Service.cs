@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using CollectionGallery.Domain.Models.Entities;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
@@ -29,7 +30,19 @@ public class ModelService
 
     public async Task<List<Model>> ListAsync()
     {
-        List<Model> list = await _modelDataSet.Select(m => new Model { Name = m.Name, Id = m.Id}).ToListAsync();
+        List<Model> list = await _modelDataSet.Select(m => new Model { Name = m.Name, Id = m.Id }).ToListAsync();
         return list;
+    }
+
+    public async Task UpdateByIdAsync(int modelId, string name)
+    {
+        using (IDbContextTransaction? dbContext = await _context.Database.BeginTransactionAsync())
+        {
+            Model? account = await _modelDataSet.FromSqlRaw("SELECT * FROM \"models\" WHERE \"Id\" = {0} FOR UPDATE", 2).FirstAsync();
+            account.Name = name;
+            account.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            await _context.Database.CommitTransactionAsync();
+        }
     }
 }
