@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace CollectionGallery.Domain.Models.Controllers;
 
 [Obsolete]
@@ -40,26 +42,8 @@ public class CollectionDetailsById
     [JsonPropertyName("created_at")]
     public DateTime? CreatedAt { get; set; } = DateTime.Now;
 
-    [JsonPropertyName("platform")]
-    public List<CollectionPlatforms> Platforms { get; set; } = new List<CollectionPlatforms>();
-
     [JsonPropertyName("child_collections")]
     public List<ChildCollection> Collections { get; set; } = new List<ChildCollection>();
-
-    [JsonPropertyName("items")]
-    public List<CollectionItems> Items { get; set; } = new List<CollectionItems>();
-
-    public class CollectionPlatforms
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; } = string.Empty;
-
-        [JsonPropertyName("icon")]
-        public string Icon { get; set; } = string.Empty;
-    }
 
     public class ChildCollection
     {
@@ -72,13 +56,32 @@ public class CollectionDetailsById
         [JsonPropertyName("collection_pic")]
         public string CollectionPic { get; set; } = string.Empty;
     }
+}
 
-    public class CollectionItems
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
+public class ItemsByCollectionId
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; } = string.Empty;
-    }
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+}
+
+public record class CreateCollectionDto
+{
+    [JsonPropertyName("name")]
+    public required string Name { get; init; }
+
+    [JsonPropertyName("parentCollectionId")]
+    public int? ParentCollectionId { get; init; } = null;
+}
+
+public record class CreateItemByCollectionIdDto
+{
+    [JsonPropertyName("file_name")]
+    [FromForm(Name = "file_name")]
+    public required string FileName { get; init; }
+
+    [JsonPropertyName("tags")]
+    public string[] Tags { get; init; }
 }

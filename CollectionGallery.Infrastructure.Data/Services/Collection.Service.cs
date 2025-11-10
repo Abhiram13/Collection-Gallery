@@ -14,6 +14,7 @@ public class CollectionService
     private readonly DbSet<Collection> _collectionDataSet;
     private readonly ILogger<CollectionService> _logger;
     private DateTime _dateTime;
+    private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
     public CollectionService(CollectionGalleryContext context, ILogger<CollectionService> logger)
     {
@@ -55,30 +56,11 @@ public class CollectionService
         return parentCollections;
     }
 
-    public async Task<CollectionDetailsById> CollectionsById(int id)
+    public async Task<CollectionDetailsById> CollectionsById(int collectionId)
     {
         const string QUERY = @"
             SELECT 
                 parent.id, parent.name, parent.created_at, parent.updated_at, parent.collection_pic,
-                COALESCE(
-                    (
-                        SELECT JSON_AGG(JSON_BUILD_OBJECT('id', item.id, 'name', item.name))
-                        FROM items item
-                        WHERE item.parent_collection_id = parent.id
-                    ), '[]'::json
-                ) AS collectionItems,
-                COALESCE(
-                    (
-                        SELECT JSON_AGG(JSON_BUILD_OBJECT('id', platform.id, 'name', platform.name))
-                        FROM platforms platform
-                        WHERE platform.id IN (
-                            SELECT ip.platform_id 
-                            FROM itemplatforms ip
-                            JOIN items i ON i.id = ip.item_id
-                            WHERE i.parent_collection_id = parent.id
-                        )
-                    ), '[]'::json
-                ) AS collectionPlatforms,
                 COALESCE(
                     (
                         SELECT JSON_AGG(JSON_BUILD_OBJECT('id', child.id, 'name', child.name, 'collectionPic', child.collection_pic))
@@ -86,15 +68,14 @@ public class CollectionService
                         WHERE child.parent_collection_id = parent.id
                     ), '[]'::json
                 ) AS childCollection
-                FROM collections parent
-                WHERE parent.id = @ParentId
-                GROUP BY parent.id;
+            FROM collections parent
+            WHERE parent.id = @ParentId
+            GROUP BY parent.id;
         ";
 
         _context.Database.OpenConnection();
         DbConnection connection = _context.Database.GetDbConnection();
         CollectionDetailsById details = new CollectionDetailsById();
-        JsonSerializerOptions options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         string? STORAGE_HOST = Environment.GetEnvironmentVariable("STORAGE_SERVER");
         using (DbCommand command = connection.CreateCommand())
         {
@@ -102,7 +83,7 @@ public class CollectionService
             NpgsqlParameter parameter = new NpgsqlParameter
             {
                 ParameterName = "@ParentId",
-                Value = id,
+                Value = collectionId,
                 Direction = System.Data.ParameterDirection.Input,
                 DbType = System.Data.DbType.Int32,
             };
@@ -117,19 +98,53 @@ public class CollectionService
                     details.CreatedAt = reader.GetDateTime(2);
                     details.UpdatedAt = reader.GetDateTime(3);
                     details.CollectionPic = reader.IsDBNull(4) ? "" : reader.GetString(4);
-                    details.Items = JsonSerializer.Deserialize<List<CollectionDetailsById.CollectionItems>>(reader.GetString(5), options) ?? new();
-                    details.Platforms = JsonSerializer.Deserialize<List<CollectionDetailsById.CollectionPlatforms>>(reader.GetString(6), options) ?? new();
-                    details.Collections = JsonSerializer.Deserialize<List<CollectionDetailsById.ChildCollection>>(reader.GetString(7), options) ?? new();
+                    details.Collections = JsonSerializer.Deserialize<List<CollectionDetailsById.ChildCollection>>(reader.GetString(5), _jsonOptions) ?? new();
                 }
-            }
-
-            foreach (CollectionDetailsById.CollectionItems detail in details.Items)
-            {
-                detail.Name = $"{STORAGE_HOST}/{detail.Name}";
             }
         }
 
         return details;
+    }
+
+    public async Task<List<ItemsByCollectionId>> GetItemsByCollectionIdAsync(int collectionId)
+    {
+        const string QUERY = @"
+            SELECT item.id, item.name
+            FROM items item
+            WHERE item.parent_collection_id = @CollectionId
+        ";
+
+        _context.Database.OpenConnection();
+        DbConnection connection = _context.Database.GetDbConnection();
+        List<ItemsByCollectionId> itemsByCollectionId = new List<ItemsByCollectionId>();
+        using (DbCommand command = connection.CreateCommand())
+        {
+            command.CommandText = QUERY;
+            NpgsqlParameter parameter = new NpgsqlParameter
+            {
+                ParameterName = "@CollectionId",
+                Value = collectionId,
+                Direction = System.Data.ParameterDirection.Input,
+                DbType = System.Data.DbType.Int32
+            };
+
+            command.Parameters.Add(parameter);
+            using (DbDataReader? reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    ItemsByCollectionId item = new ItemsByCollectionId
+                    {
+                        Id = reader.GetInt32(0),
+                        Name = reader.GetString(1)
+                    };
+
+                    itemsByCollectionId.Add(item);
+                }
+            }
+        }
+
+        return itemsByCollectionId;    
     }
 
     private async Task<bool> IsCollectionExist(int collectionId)
@@ -161,5 +176,10 @@ public class CollectionService
 
         await _context.SaveChangesAsync();
         return UpdateFieldResult.Success;
+    }
+
+    public async Task CreateItemByCollectionIdAsync()
+    {
+        
     }
 }

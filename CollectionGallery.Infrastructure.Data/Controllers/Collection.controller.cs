@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 using CollectionGallery.Domain.Models.Entities;
 using CollectionGallery.InfraStructure.Data.Services;
 using CollectionGallery.Domain.Models.Controllers;
+using System.Text.Json;
 
 namespace CollectionGallery.InfraStructure.Data.Controllers;
 
 [ApiController]
-[Route("collection")]
+[Route("/api/collections")]
 public class CollectionController : ControllerBase
 {
     private readonly ILogger<CollectionController> _logger;
@@ -19,15 +20,24 @@ public class CollectionController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<string>>> CreateAsync([FromBody] Collection body)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateCollectionDto body)
     {
         string traceId = Guid.NewGuid().ToString();
         try
         {
+            Collection collection = new Collection();
             DateTime dateTime = DateTime.UtcNow;
-            body.CreatedAt = dateTime;
-            body.UpdatedAt = dateTime;
-            await _collectionService.InsertAsync(body);
+            collection.CreatedAt = dateTime;
+            collection.UpdatedAt = dateTime;
+            collection.Name = body.Name;
+
+            if (body.ParentCollectionId is not null && body.ParentCollectionId > 0)
+            {
+                collection.ParentCollectionId = body.ParentCollectionId;
+            }
+
+            // TODO: Sometimes collection may already exists and need to handle that response/logic here
+            await _collectionService.InsertAsync(collection);
             _logger.LogInformation("{@response}", new { traceId, body, message = "Collection Added Successfully" });
             return StatusCode(201, new ApiResponse<string>
             {
@@ -49,7 +59,7 @@ public class CollectionController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> ParentCollectionListAsync()
+    public async Task<IActionResult> ParentCollectionListAsync()
     {
         string traceId = Guid.NewGuid().ToString();
         try
@@ -70,7 +80,7 @@ public class CollectionController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ApiResponse<CollectionDetailsById>>> CollectionDetailsById(int id)
+    public async Task<IActionResult> CollectionDetailsById([FromRoute] int id)
     {
         string traceId = Guid.NewGuid().ToString();
 
@@ -96,13 +106,57 @@ public class CollectionController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.LogError("Exception at Collection Details API. {@ExceptionDetails}", new { message = e.Message, traceId });
+            _logger.LogError(e, "Exception at Collection Details API. {@ExceptionDetails}", new { message = e.Message, traceId });
             return StatusCode(500);
         }
     }
 
+    [HttpGet("{collectionId}/items")]
+    public async Task<IActionResult> ItemsByCollectionId([FromRoute] int collectionId)
+    {
+        string traceId = Guid.NewGuid().ToString();
+
+        try
+        {
+            if (collectionId == 0)
+            {
+                _logger.LogWarning("Invalid Collection Id is provided. Collection Id: {@CollectinId}", collectionId);
+                return StatusCode(400, new ApiResponse<string>
+                {
+                    Message = $"invalid collection is provided. Collection ID: {collectionId}",
+                    StatusCode = System.Net.HttpStatusCode.BadRequest,
+                    TraceId = traceId
+                });
+            }
+
+            List<ItemsByCollectionId> items = await _collectionService.GetItemsByCollectionIdAsync(collectionId);
+            return Ok(new ApiResponse<List<ItemsByCollectionId>>
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Result = items,
+                TraceId = traceId,
+            });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Exception at Items by Collection API. {@ExceptionDetails}", new { message = e.Message, traceId });
+            return StatusCode(500);
+        }
+    }
+    
+    [HttpPost("{collectionId}/items")]
+    public async Task<IActionResult> CreateItemByCollectionIdAsync([FromRoute] int collectionId, [FromForm] CreateItemByCollectionIdDto payload)
+    {
+        _logger.LogInformation(Request.ContentType);
+        _logger.LogInformation(Request.HasFormContentType.ToString());
+        _logger.LogInformation(Request.HasJsonContentType().ToString());
+
+        _logger.LogInformation(JsonSerializer.Serialize(payload));
+        return Ok();
+    }
+
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateAsync(int id, [FromBody] Collection body)
+    public async Task<IActionResult> UpdateAsync(int id, [FromBody] Collection body)
     {
         await _collectionService.UpdateByIdAsync(id, body);
         return Ok();
