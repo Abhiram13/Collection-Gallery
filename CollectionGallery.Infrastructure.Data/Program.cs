@@ -33,7 +33,9 @@ builder.Services.AddDbContext<CollectionGalleryContext>(async (provider, options
     string? postgresDatabase = await secretManager.GetSecretAsync("POSTGRES_DATABASE");
     string? postgresUsername = await secretManager.GetSecretAsync("POSTGRES_USERNAME");
     string? postgresPassword = await secretManager.GetSecretAsync("POSTGRES_PASSWORD");
+    string? postgresReadDataBase = await secretManager.GetSecretAsync("POSTGRES_READ_DATABASE");
     string? postgresConnectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresDatabase};Username={postgresUsername};Password={postgresPassword}";
+    string? postgresReadConnectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresReadDataBase};Username={postgresUsername};Password={postgresPassword}";
     options
         .UseNpgsql(postgresConnectionString)
         .LogTo(_ => { }, LogLevel.Warning);
@@ -56,7 +58,7 @@ using (IServiceScope? scope = app.Services.CreateScope())
     }
     catch (Exception e)
     {
-        logger.LogCritical(e, "Exception at DB Migrate Setup ({0})", e.Message);
+        logger.LogCritical(e, "Exception at DB Migrate Setup ({Message})", e.Message);
     }
 }
 
