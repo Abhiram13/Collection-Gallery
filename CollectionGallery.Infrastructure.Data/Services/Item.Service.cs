@@ -1,3 +1,4 @@
+using System.Data;
 using System.Data.Common;
 using System.Text.Json;
 using CollectionGallery.Domain.Models.Controllers;
@@ -6,6 +7,7 @@ using CollectionGallery.Domain.Models.Enums;
 using CollectionGallery.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
@@ -150,9 +152,45 @@ public class ItemService
         {
             foreach (int tag in payload.Tags)
             {
-                bool isTagExist = await _tagService.IsTagExistAsync(tag);
+                if (tag > 0)
+                {
+                    bool isTagExist = await _tagService.IsTagExistAsync(tag);
 
-                if (!isTagExist) throw new TagIdNotFoundException($"Given Tag ID ({tag}) is invalid or not exists");
+                    if (!isTagExist) throw new TagIdNotFoundException($"Given Tag ID ({tag}) is invalid or not exists");
+                }
+            }
+        }
+    }
+    
+    public async Task UploadSuccessMetaData(UploadSuccessDto payload)
+    {
+        using (IDbContextTransaction? transaction = await _context.Database.BeginTransactionAsync())
+        {
+            try
+            {
+                DateTime date = DateTime.UtcNow;
+                Item item = new Item();
+                item.CreatedAt = date;
+                item.UpdatedAt = date;
+                item.Extension = payload.Extension;
+                item.Name = payload.FileName;
+                item.ParentCollectionId = payload.CollectionId;
+                item.Size = FileSize.Original;
+
+                await _itemContext.AddAsync(item);
+                await _context.SaveChangesAsync();
+
+                if (payload.Tags is not null && payload.Tags.Length > 0)
+                {
+                    await _tagService.AddItemTagsAsync(item.Id, payload.Tags.ToList());
+                }
+
+                await transaction.CommitAsync();
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(exception: e, message: e.Message);
+                await transaction.RollbackAsync();
             }
         }
     }

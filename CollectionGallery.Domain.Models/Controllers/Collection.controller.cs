@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CollectionGallery.Domain.Models.Controllers;
@@ -89,4 +90,7 @@ public record class CreateItemByCollectionIdDto
     [JsonPropertyName("collection_id")]
     [FromForm(Name = "collection_id")]
     public int? CollectionId { get; init; } = null;
+
+    [JsonPropertyName("file")]
+    public IFormFile File { get; set; }
 }

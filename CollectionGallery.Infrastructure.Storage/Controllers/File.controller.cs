@@ -62,7 +62,9 @@ public class FileController : ControllerBase
             }).ToArray();
             ValidateUploadDto dto = new ValidateUploadDto { CollectionId = payload.CollectionId, Tags = tags };
             await _dbServiceClient.ValidateUploadAsync(dto);
-            return Ok("Upload Ok");
+            FileMeta meta = new FileMeta(payload.File);
+            StorageObject storageObject = await _service.UploadFileAsync(meta);
+            return Ok(storageObject);
         }
         catch (HttpRequestException ex)
         {

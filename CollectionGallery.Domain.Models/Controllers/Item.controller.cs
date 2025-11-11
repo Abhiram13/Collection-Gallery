@@ -87,3 +87,18 @@ public record ValidateUploadDto
     [JsonPropertyName("tags")]
     public int[]? Tags { get; init; } = null;
 }
+
+public record UploadSuccessDto
+{
+    [JsonPropertyName("collection_id")]
+    public int? CollectionId { get; init; } = null;
+
+    [JsonPropertyName("tags")]
+    public int[]? Tags { get; init; } = null;
+
+    [JsonPropertyName("file_name")]
+    public string FileName { get; init; } = string.Empty;
+
+    [JsonPropertyName("extension")]
+    public string Extension { get; init; } = string.Empty;    
+}
