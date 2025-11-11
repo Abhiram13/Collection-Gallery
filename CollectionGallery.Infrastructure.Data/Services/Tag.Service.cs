@@ -80,4 +80,10 @@ public class TagService
         await _context.SaveChangesAsync();
         return UpdateFieldResult.Success;
     }
+
+    public async Task<bool> IsTagExistAsync(int tagId)
+    {
+        int tagsCount = await _tagDbSet.CountAsync(t => t.Id == tagId);
+        return tagsCount > 0;
+    }
 }

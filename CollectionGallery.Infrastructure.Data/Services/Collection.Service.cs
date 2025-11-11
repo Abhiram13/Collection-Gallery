@@ -147,7 +147,7 @@ public class CollectionService
         return itemsByCollectionId;    
     }
 
-    private async Task<bool> IsCollectionExist(int collectionId)
+    public async Task<bool> IsCollectionExist(int collectionId)
     {
         int collectionCount = await _collectionDataSet.CountAsync(c => c.Id == collectionId);
         return collectionCount > 0;
@@ -176,10 +176,5 @@ public class CollectionService
 
         await _context.SaveChangesAsync();
         return UpdateFieldResult.Success;
-    }
-
-    public async Task CreateItemByCollectionIdAsync()
-    {
-        
     }
 }

@@ -3,6 +3,7 @@ using System.Text.Json;
 using CollectionGallery.Domain.Models.Controllers;
 using CollectionGallery.Domain.Models.Entities;
 using CollectionGallery.Domain.Models.Enums;
+using CollectionGallery.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Npgsql;
@@ -133,5 +134,26 @@ public class ItemService
         }
 
         return itemDetails;
+    }
+
+    public async Task ValidateUploadAsync(ValidateUploadDto payload)
+    {
+        if (payload.CollectionId is not null && payload.CollectionId > 0)
+        {
+            int collectionId = (int)payload.CollectionId;
+            bool isCollectionExist = await _collectionService.IsCollectionExist(collectionId);
+
+            if (!isCollectionExist) throw new CollectionIdNotFoundException($"Given Collection ID ({collectionId}) is invalid or not exists");
+        }
+
+        if (payload.Tags is not null && payload.Tags.Length > 0)
+        {
+            foreach (int tag in payload.Tags)
+            {
+                bool isTagExist = await _tagService.IsTagExistAsync(tag);
+
+                if (!isTagExist) throw new TagIdNotFoundException($"Given Tag ID ({tag}) is invalid or not exists");
+            }
+        }
     }
 }

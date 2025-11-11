@@ -5,6 +5,7 @@ using CollectionGallery.Domain.Models.Controllers;
 
 namespace Storage.Controllers;
 
+[Obsolete("", error: true)]
 [ApiController]
 [Route("collection")]
 public class CollectionController : ControllerBase

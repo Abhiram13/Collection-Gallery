@@ -80,8 +80,13 @@ public record class CreateItemByCollectionIdDto
 {
     [JsonPropertyName("file_name")]
     [FromForm(Name = "file_name")]
-    public required string FileName { get; init; }
+    public string FileName { get; init; } = string.Empty;
 
     [JsonPropertyName("tags")]
-    public string[] Tags { get; init; }
+    [FromForm(Name = "tags")]
+    public string[] Tags { get; init; } = Array.Empty<string>();
+
+    [JsonPropertyName("collection_id")]
+    [FromForm(Name = "collection_id")]
+    public int? CollectionId { get; init; } = null;
 }

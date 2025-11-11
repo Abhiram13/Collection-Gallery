@@ -78,3 +78,12 @@ public class ItemDetails
         public string Name { get; set; } = string.Empty;
     }
 }
+
+public record ValidateUploadDto
+{
+    [JsonPropertyName("collection_id")]
+    public int? CollectionId { get; init; } = null;
+
+    [JsonPropertyName("tags")]
+    public int[]? Tags { get; init; } = null;
+}

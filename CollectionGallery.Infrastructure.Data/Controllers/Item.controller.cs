@@ -1,12 +1,13 @@
 using System.Net;
 using CollectionGallery.Domain.Models.Controllers;
 using CollectionGallery.InfraStructure.Data.Services;
+using CollectionGallery.Shared.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CollectionGallery.InfraStructure.Data.Controllers;
 
 [ApiController]
-[Route("item")]
+[Route("/api/items")]
 public class ItemController : ControllerBase
 {
     private readonly ILogger<ItemController> _logger;
@@ -55,5 +56,27 @@ public class ItemController : ControllerBase
             Result = details,
             TraceId = Guid.NewGuid().ToString(),
         });
+    }
+
+    [HttpPost("validate")]
+    public async Task<IActionResult> ValidateUploadAsync([FromBody] ValidateUploadDto payload)
+    {
+        try
+        {
+            await _itemService.ValidateUploadAsync(payload);
+            return Ok();
+        }
+        catch (CollectionIdNotFoundException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (TagIdNotFoundException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
     }
 }

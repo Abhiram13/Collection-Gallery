@@ -4,18 +4,19 @@ using CollectionGallery.Infrastructure.Storage.Services;
 using Abhiram.Extensions.DotEnv;
 using Abhiram.Abstractions.Logging;
 using System.Net;
-
-DotEnvironmentVariables.Load();
+using CollectionGallery.Infrastructure.Storage.Utilities;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+DotEnvironmentVariables.Load();
 
-builder.Configuration.AddEnvironmentVariables().Build();
+// builder.Configuration.AddEnvironmentVariables().Build();
 builder.AddConsoleGoogleSeriLog();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ItemService>();
 builder.Services.AddSingleton<PublisherService>();
 builder.Services.AddSingleton<ImageService>();
+builder.Services.AddHttpClient<DbServiceClient>();
 builder.Services.AddControllers();
 builder.WebHost.ConfigureKestrel((_, server) => {
     string portNumber = Environment.GetEnvironmentVariable("PORT") ?? "3000";

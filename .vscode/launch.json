@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Launch - Storage Service API",
+            "type": "coreclr",
+            "request": "launch",            
+            "program": "${workspaceFolder}/bin/Debug/net8.0/CollectionGallery.Infrastructure.Storage.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/CollectionGallery.Infrastructure.Storage",
+            "stopAtEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": ".NET Launch - DB Service API",
+            "type": "coreclr",
+            "request": "launch",            
+            "program": "${workspaceFolder}/bin/Debug/net8.0/CollectionGallery.Infrastructure.Data.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/CollectionGallery.Infrastructure.Data",
+            "stopAtEntry": false,
+            "console": "integratedTerminal"
+        },
+        {
+            "name": ".NET Attach",
+            "type": "coreclr",
+            "request": "attach"
+        }
+    ]
+}

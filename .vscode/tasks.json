@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "command": "dotnet build ${workspaceFolder}/Postgres.csproj",
+            "type": "shell",
+            "args": [
+                "build",
+                "${workspaceFolder}/Postgres.csproj"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
