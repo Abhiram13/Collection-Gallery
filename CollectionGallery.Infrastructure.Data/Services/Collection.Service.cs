@@ -8,18 +8,13 @@ using System.Text.Json;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
-public class CollectionService
+public class CollectionService : BaseService
 {
-    private readonly CollectionGalleryContext _context;
-    private readonly DbSet<Collection> _collectionDataSet;
     private readonly ILogger<CollectionService> _logger;
-    private DateTime _dateTime;
     private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-    public CollectionService(CollectionGalleryContext context, ILogger<CollectionService> logger)
+    public CollectionService(CollectionGalleryWriteContext writeContext, CollectionGalleryReadContext readContext, ILogger<CollectionService> logger) : base(writeContext, readContext)
     {
-        _context = context;
-        _collectionDataSet = _context.Collections;
         _logger = logger;
     }
 
@@ -35,25 +30,27 @@ public class CollectionService
             return existingCollection;
         }
 
-        await _collectionDataSet.AddAsync(collection);
-        await _context.SaveChangesAsync();
+        await _writeContext.Collections.AddAsync(collection);
+        await _writeContext.SaveChangesAsync();
         return collection;
     }
 
     private async Task<Collection?> GetCollectionByName(string collectionName)
     {
-        Collection? collection = await _collectionDataSet.FirstOrDefaultAsync(c => c.Name.ToLower() == collectionName.ToLower());
+        Collection? collection = await _readContext.Collections.FirstOrDefaultAsync(c => c.Name.ToLower() == collectionName.ToLower());
         return collection;
     }
 
     public async Task<List<ParentCollections>> ListOfParentCollections()
     {
-        List<ParentCollections> parentCollections = await _collectionDataSet
+        List<ParentCollections> parentCollections = await _readContext.Collections
             .Where(c => c.ParentCollectionId == null)
-            .Select(c => new ParentCollections { CollectionPic = c.CollectionPic, Id = c.Id, Name = c.Name })
+            .Select(c => new ParentCollections { CollectionPic = "https://static.vecteezy.com/vite/assets/photo-masthead-375-BoK_p8LG.webp", Id = c.Id, Name = c.Name })
             .ToListAsync();
 
-        return parentCollections;
+        List<ParentCollections> repeated = parentCollections.SelectMany(col => Enumerable.Repeat(col, 15)).ToList();
+
+        return repeated;
     }
 
     public async Task<CollectionDetailsById> CollectionsById(int collectionId)
@@ -73,8 +70,8 @@ public class CollectionService
             GROUP BY parent.id;
         ";
 
-        _context.Database.OpenConnection();
-        DbConnection connection = _context.Database.GetDbConnection();
+        _readContext.Database.OpenConnection();
+        DbConnection connection = _readContext.Database.GetDbConnection();
         CollectionDetailsById details = new CollectionDetailsById();
         string? STORAGE_HOST = Environment.GetEnvironmentVariable("STORAGE_SERVER");
         using (DbCommand command = connection.CreateCommand())
@@ -114,8 +111,8 @@ public class CollectionService
             WHERE item.parent_collection_id = @CollectionId
         ";
 
-        _context.Database.OpenConnection();
-        DbConnection connection = _context.Database.GetDbConnection();
+        _readContext.Database.OpenConnection();
+        DbConnection connection = _readContext.Database.GetDbConnection();
         List<ItemsByCollectionId> itemsByCollectionId = new List<ItemsByCollectionId>();
         using (DbCommand command = connection.CreateCommand())
         {
@@ -149,13 +146,13 @@ public class CollectionService
 
     public async Task<bool> IsCollectionExist(int collectionId)
     {
-        int collectionCount = await _collectionDataSet.CountAsync(c => c.Id == collectionId);
+        int collectionCount = await _readContext.Collections.CountAsync(c => c.Id == collectionId);
         return collectionCount > 0;
     }
 
     public async Task<UpdateFieldResult> UpdateByIdAsync(int collectionId, Collection body)
     {
-        Collection? existingCollection = await _collectionDataSet.FindAsync(collectionId);
+        Collection? existingCollection = await _readContext.Collections.FindAsync(collectionId);
 
         if (body.ParentCollectionId is not null && body.ParentCollectionId != 0)
         {
@@ -174,7 +171,7 @@ public class CollectionService
         if (body.ParentCollectionId is not null) existingCollection.ParentCollectionId = body.ParentCollectionId;
         existingCollection.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        await _writeContext.SaveChangesAsync();
         return UpdateFieldResult.Success;
     }
 }

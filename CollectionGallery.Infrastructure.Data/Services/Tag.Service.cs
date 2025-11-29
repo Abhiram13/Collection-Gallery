@@ -6,19 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
-public class TagService
+public class TagService : BaseService
 {
     private readonly ILogger<TagService> _logger;
-    private readonly DbSet<Tags> _tagDbSet;
-    private readonly DbSet<ItemTags> _itemTagDbSet;
-    private readonly CollectionGalleryContext _context;
 
-    public TagService(ILogger<TagService> logger, CollectionGalleryContext context)
+    public TagService(ILogger<TagService> logger, CollectionGalleryWriteContext writeContext, CollectionGalleryReadContext readContext) : base (writeContext, readContext)
     {
         _logger = logger;
-        _context = context;
-        _tagDbSet = context.Tags;
-        _itemTagDbSet = context.ItemTags;
     }
 
     public async Task<Tags> SearchAndInsertAsync(Tags tag)
@@ -31,14 +25,14 @@ public class TagService
             return existingTag;
         }
 
-        await _tagDbSet.AddAsync(tag);
-        await _context.SaveChangesAsync();
+        await _writeContext.Tags.AddAsync(tag);
+        await _writeContext.SaveChangesAsync();
         return tag;
     }
 
     private async Task<Tags?> SearchByName(string platformName)
     {
-        Tags? tag = await _tagDbSet.FirstOrDefaultAsync(p => p.Name.ToLower() == platformName.ToLower());
+        Tags? tag = await _writeContext.Tags.FirstOrDefaultAsync(p => p.Name.ToLower() == platformName.ToLower());
         return tag;
     }
 
@@ -54,20 +48,20 @@ public class TagService
         {
             if (tagId == 0) continue;
 
-            await _itemTagDbSet.AddAsync(new ItemTags { ItemId = itemId, TagId = tagId });
-            await _context.SaveChangesAsync();
+            await _writeContext.ItemTags.AddAsync(new ItemTags { ItemId = itemId, TagId = tagId });
+            await _writeContext.SaveChangesAsync();
         }
     }
 
     public async Task<List<TagList>> ListTagsAsync()
     {
-        List<TagList> list = await _tagDbSet.Where(t => !string.IsNullOrEmpty(t.Name)).Select(t => new TagList { Id = t.Id, Name = t.Name }).ToListAsync();
+        List<TagList> list = await _writeContext.Tags.Where(t => !string.IsNullOrEmpty(t.Name)).Select(t => new TagList { Id = t.Id, Name = t.Name }).ToListAsync();
         return list;
     }
 
     public async Task<UpdateFieldResult> UpdateByIdAsync(int tagId, Tags body)
     {
-        Tags? existingTag = await _tagDbSet.FindAsync(tagId);
+        Tags? existingTag = await _writeContext.Tags.FindAsync(tagId);
 
         if (existingTag is null)
         {
@@ -77,13 +71,13 @@ public class TagService
         if (!string.IsNullOrEmpty(body.Name)) existingTag.Name = body.Name;
         existingTag.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        await _writeContext.SaveChangesAsync();
         return UpdateFieldResult.Success;
     }
 
     public async Task<bool> IsTagExistAsync(int tagId)
     {
-        int tagsCount = await _tagDbSet.CountAsync(t => t.Id == tagId);
+        int tagsCount = await _writeContext.Tags.CountAsync(t => t.Id == tagId);
         return tagsCount > 0;
     }
 }

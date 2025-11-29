@@ -26,6 +26,12 @@ public class DbServiceClient
             string jsonResponse = await httpResponse.Content.ReadAsStringAsync();
             ExceptionMessage exceptionMessage = JsonSerializer.Deserialize<ExceptionMessage>(jsonResponse)!;
             throw new HttpRequestException(message: exceptionMessage.Message, inner: ex, statusCode: System.Net.HttpStatusCode.BadRequest);
-        }                    
+        }
+    }
+    
+    public async Task UploadSuccessAsync(UploadSuccessDto payload)
+    {
+        HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("api/items/uploadSuccess", payload);
+        string jsonResponse = await httpResponse.Content.ReadAsStringAsync();
     }
 }

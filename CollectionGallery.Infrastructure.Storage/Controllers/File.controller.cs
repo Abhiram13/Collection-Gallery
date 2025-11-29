@@ -56,14 +56,28 @@ public class FileController : ControllerBase
     {
         try
         {
-            int[] tags = payload.Tags.Select(t => {
-                int value;
-                return int.TryParse(t, out value) ? value : 0;
-            }).ToArray();
+            int[] TagsToArray()
+            {
+                IEnumerable<int> tags = payload.Tags.Select(t =>
+                {
+                    return int.TryParse(t, out int value) ? value : 0;
+                });
+
+                return tags.ToArray();
+            }
+
+            int[] tags = TagsToArray();
             ValidateUploadDto dto = new ValidateUploadDto { CollectionId = payload.CollectionId, Tags = tags };
             await _dbServiceClient.ValidateUploadAsync(dto);
             FileMeta meta = new FileMeta(payload.File);
             StorageObject storageObject = await _service.UploadFileAsync(meta);
+            await _dbServiceClient.UploadSuccessAsync(new UploadSuccessDto
+            {
+                CollectionId = payload.CollectionId,
+                Extension = meta.Extension,
+                FileName = meta.FileName,
+                Tags = tags
+            });
             return Ok(storageObject);
         }
         catch (HttpRequestException ex)

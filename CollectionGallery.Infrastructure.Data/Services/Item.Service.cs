@@ -12,30 +12,28 @@ using Npgsql;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
-public class ItemService
+public class ItemService : BaseService
 {
-    private readonly CollectionGalleryContext _context;
-    private readonly ModelService _modelService;
     private readonly CollectionService _collectionService;
     private readonly TagService _tagService;
-    private readonly PlatformService _platformService;
     private readonly ILogger<ItemService> _logger;
-    private readonly DbSet<Item> _itemContext;
 
-    public ItemService(CollectionGalleryContext context, ModelService service, CollectionService collectionService, ILogger<ItemService> logger, TagService tagService, PlatformService platformService)
+    public ItemService(
+        CollectionGalleryWriteContext writeContext,
+        CollectionGalleryReadContext readContext,
+        CollectionService collectionService, 
+        ILogger<ItemService> logger, 
+        TagService tagService
+    ) : base (writeContext, readContext)
     {
-        _context = context;
-        _modelService = service;
         _collectionService = collectionService;
         _logger = logger;
         _tagService = tagService;
-        _platformService = platformService;
-        _itemContext = context.Items;
     }
 
     public async Task<MethodStatus> InsertItemAsync(FileUploadResultObject data)
     {
-        DatabaseFacade database = _context.Database;
+        DatabaseFacade database = _writeContext.Database;
         try
         {
             using (await database.BeginTransactionAsync())
@@ -60,10 +58,9 @@ public class ItemService
                     UpdatedAt = dateTime,
                 };
 
-                await _context.Items.AddAsync(newItem);
-                await _context.SaveChangesAsync();
+                await _writeContext.Items.AddAsync(newItem);
+                await _writeContext.SaveChangesAsync();
                 await _tagService.AddItemTagsAsync(newItem.Id, data.Tags);
-                await _platformService.AddPlatformTagsAsync(newItem.Id, data.Platforms);
 
                 await database.CommitTransactionAsync();
                 _logger.LogInformation("File ({0}) was insert in database succcessfully. Trace ID: {1}", data.FileName, data.TraceId);
@@ -80,15 +77,15 @@ public class ItemService
 
     private async Task<Item?> SearchByName(string fileName)
     {
-        Item? item = await _context.Items.FirstOrDefaultAsync(i => i.Name.ToLower() == fileName.ToLower());
+        Item? item = await _readContext.Items.FirstOrDefaultAsync(i => i.Name.ToLower() == fileName.ToLower());
         return item;
     }
 
     public async Task<List<ItemList>> ListAsync()
     {
         string storageServer = Environment.GetEnvironmentVariable("STORAGE_SERVER")!;
-        List<ItemList> list = await _itemContext.Select(i => new ItemList { Id = i.Id, Url = $"{storageServer}/{i.Name}" }).ToListAsync();
-        List<ItemList> repeated = list.SelectMany(item => Enumerable.Repeat(item, 20)).ToList();
+        List<ItemList> list = await _readContext.Items.Select(i => new ItemList { Id = i.Id, Url = $"{storageServer}/{i.Name}" }).ToListAsync();
+        List<ItemList> repeated = list.SelectMany(item => Enumerable.Repeat(item, 15)).ToList();
         return repeated;
     }
 
@@ -108,8 +105,8 @@ public class ItemService
             GROUP BY i.id, i.name, m.name
         ";
 
-        _context.Database.OpenConnection();
-        DbConnection connection = _context.Database.GetDbConnection();
+        _readContext.Database.OpenConnection();
+        DbConnection connection = _readContext.Database.GetDbConnection();
         ItemDetails itemDetails = new ItemDetails();
         using (DbCommand command = connection.CreateCommand())
         {
@@ -164,7 +161,7 @@ public class ItemService
     
     public async Task UploadSuccessMetaData(UploadSuccessDto payload)
     {
-        using (IDbContextTransaction? transaction = await _context.Database.BeginTransactionAsync())
+        using (IDbContextTransaction? transaction = await _readContext.Database.BeginTransactionAsync())
         {
             try
             {
@@ -177,8 +174,8 @@ public class ItemService
                 item.ParentCollectionId = payload.CollectionId;
                 item.Size = FileSize.Original;
 
-                await _itemContext.AddAsync(item);
-                await _context.SaveChangesAsync();
+                await _writeContext.AddAsync(item);
+                await _writeContext.SaveChangesAsync();
 
                 if (payload.Tags is not null && payload.Tags.Length > 0)
                 {

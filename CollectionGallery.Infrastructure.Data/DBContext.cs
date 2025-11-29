@@ -3,9 +3,9 @@ using CollectionGallery.Domain.Models.Entities;
 
 namespace CollectionGallery.InfraStructure.Data
 {
-    public class CollectionGalleryContext : DbContext
+    public class CollectionGalleryWriteContext : DbContext
     {
-        public CollectionGalleryContext(DbContextOptions<CollectionGalleryContext> options) : base(options) { }
+        public CollectionGalleryWriteContext(DbContextOptions<CollectionGalleryWriteContext> options) : base(options) { }
         public DbSet<Model> Models { get; init; }
         public DbSet<Item> Items { get; init; }
         public DbSet<Tags> Tags { get; init; }
@@ -29,5 +29,17 @@ namespace CollectionGallery.InfraStructure.Data
             modelBuilder.Entity<ItemPlatforms>().HasOne(it => it.Platform).WithMany(t => t.FilePlatforms).HasForeignKey(it => it.PlatformId);
             // ImagePlatforms       
         }
+    }
+
+    public class CollectionGalleryReadContext : DbContext
+    {
+        public CollectionGalleryReadContext(DbContextOptions<CollectionGalleryReadContext> options) : base(options) { }
+        public DbSet<Model> Models { get; init; }
+        public DbSet<Item> Items { get; init; }
+        public DbSet<Tags> Tags { get; init; }
+        public DbSet<Platforms> Platforms { get; init; }
+        public DbSet<Collection> Collections { get; init; }
+        public DbSet<ItemTags> ItemTags { get; init; }
+        public DbSet<ItemPlatforms> ItemPlatforms { get; init; }
     }
 }
