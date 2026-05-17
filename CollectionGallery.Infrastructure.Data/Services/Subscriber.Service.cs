@@ -1,7 +1,7 @@
 using System.Text.Json;
-using CollectionGallery.Domain.Models.Controllers;
 using Google.Cloud.PubSub.V1;
-using CollectionGallery.Domain.Models.Enums;
+using CollectionGallery.InfraStructure.Data.Enums;
+using CollectionGallery.InfraStructure.Data.Item.Models;
 using Google.Apis.Storage.v1;
 
 namespace CollectionGallery.InfraStructure.Data.Services;

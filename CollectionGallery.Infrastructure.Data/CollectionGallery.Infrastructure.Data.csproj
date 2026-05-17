@@ -1,11 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <NoWarn>IDE0350</NoWarn>
-        <NoWarn>IDE0300</NoWarn> <!-- Simplify collection initialization -->
         <RootNamespace>CollectionGallery.Infrastructure.Data</RootNamespace>
     </PropertyGroup>
 

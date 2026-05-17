@@ -1,7 +1,7 @@
 using System.Text.Json;
-using CollectionGallery.Domain.Models.Controllers;
-using CollectionGallery.Domain.Models.Entities;
-using CollectionGallery.Domain.Models.Enums;
+using CollectionGallery.InfraStructure.Data.Enums;
+using CollectionGallery.InfraStructure.Data.Entities;
+using CollectionGallery.InfraStructure.Data.Tag.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CollectionGallery.InfraStructure.Data.Services;

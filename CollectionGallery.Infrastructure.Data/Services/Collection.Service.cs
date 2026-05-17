@@ -1,17 +1,17 @@
 using Microsoft.EntityFrameworkCore;
-using CollectionGallery.Domain.Models.Entities;
-using CollectionGallery.Domain.Models.Enums;
-using CollectionGallery.Domain.Models.Controllers;
+using CollectionGallery.InfraStructure.Data.Entities;
+using CollectionGallery.InfraStructure.Data.Collection.Models;
+using CollectionGallery.InfraStructure.Data.Enums;
 using System.Data.Common;
-using Npgsql;
 using System.Text.Json;
+using Npgsql;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
 public class CollectionService
 {
     private readonly CollectionGalleryContext _context;
-    private readonly DbSet<Collection> _collectionDataSet;
+    private readonly DbSet<CollectionEntity> _collectionDataSet;
     private readonly ILogger<CollectionService> _logger;
     private DateTime _dateTime;
 
@@ -24,9 +24,9 @@ public class CollectionService
 
     // TODO: Check for valid Parent Folder ID
     // TODO: Add Validations
-    public async Task<Collection> InsertAsync(Collection collection)
+    public async Task<CollectionEntity> InsertAsync(CollectionEntity collection)
     {
-        Collection? existingCollection = await GetCollectionByName(collection.Name);
+        CollectionEntity? existingCollection = await GetCollectionByName(collection.Name);
 
         if (existingCollection is not null)
         {
@@ -39,9 +39,9 @@ public class CollectionService
         return collection;
     }
 
-    private async Task<Collection?> GetCollectionByName(string collectionName)
+    private async Task<CollectionEntity?> GetCollectionByName(string collectionName)
     {
-        Collection? collection = await _collectionDataSet.FirstOrDefaultAsync(c => c.Name.ToLower() == collectionName.ToLower());
+        CollectionEntity? collection = await _collectionDataSet.FirstOrDefaultAsync(c => c.Name.ToLower() == collectionName.ToLower());
         return collection;
     }
 
@@ -138,9 +138,9 @@ public class CollectionService
         return collectionCount > 0;
     }
 
-    public async Task<UpdateFieldResult> UpdateByIdAsync(int collectionId, Collection body)
+    public async Task<UpdateFieldResult> UpdateByIdAsync(int collectionId, CollectionEntity body)
     {
-        Collection? existingCollection = await _collectionDataSet.FindAsync(collectionId);
+        CollectionEntity? existingCollection = await _collectionDataSet.FindAsync(collectionId);
 
         if (body.ParentCollectionId is not null && body.ParentCollectionId != 0)
         {

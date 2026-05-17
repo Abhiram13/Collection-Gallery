@@ -1,5 +1,5 @@
 using System.Text.Json;
-using CollectionGallery.Domain.Models.Entities;
+using CollectionGallery.InfraStructure.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CollectionGallery.InfraStructure.Data.Services;

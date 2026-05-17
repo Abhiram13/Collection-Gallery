@@ -1,6 +1,8 @@
-namespace CollectionGallery.Domain.Models.Controllers;
+using System.Text.Json.Serialization;
 
-public class TagList
+namespace CollectionGallery.InfraStructure.Data.Tag.Models;
+
+public record TagList
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }

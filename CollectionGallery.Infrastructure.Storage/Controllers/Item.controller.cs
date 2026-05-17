@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using CollectionGallery.Infrastructure.Storage.Services;
-using CollectionGallery.Domain.Models.Controllers;
 using CollectionGallery.Infrastructure.Storage.Utilities;
+using CollectionGallery.Shared.Models;
 using System.Text.Json;
+using CollectionGallery.InfraStructure.Data.Item.Models;
 
 namespace CollectionGallery.Infrastructure.Storage.Controllers;
 

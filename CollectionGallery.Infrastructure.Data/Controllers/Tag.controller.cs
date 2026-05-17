@@ -1,6 +1,7 @@
-using CollectionGallery.Domain.Models.Controllers;
-using CollectionGallery.Domain.Models.Entities;
 using CollectionGallery.InfraStructure.Data.Services;
+using CollectionGallery.InfraStructure.Data.Entities;
+using CollectionGallery.InfraStructure.Data.Tag.Models;
+using CollectionGallery.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CollectionGallery.InfraStructure.Data.Controllers;

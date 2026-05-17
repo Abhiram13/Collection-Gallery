@@ -1,5 +1,6 @@
-namespace CollectionGallery.Domain.Models.Enums;
+namespace CollectionGallery.InfraStructure.Data.Enums;
 
+[Obsolete]
 public enum UpdateFieldResult
 {
     Success = 1,

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using CollectionGallery.Domain.Models.Entities;
+using CollectionGallery.InfraStructure.Data.Entities;
 
 namespace CollectionGallery.InfraStructure.Data
 {
@@ -7,10 +7,10 @@ namespace CollectionGallery.InfraStructure.Data
     {
         public CollectionGalleryContext(DbContextOptions<CollectionGalleryContext> options) : base(options) { }
         public DbSet<Model> Models { get; init; }
-        public DbSet<Item> Items { get; init; }
+        public DbSet<ItemEntity> Items { get; init; }
         public DbSet<Tags> Tags { get; init; }
         public DbSet<Platforms> Platforms { get; init; }
-        public DbSet<Collection> Collections { get; init; }
+        public DbSet<CollectionEntity> Collections { get; init; }
         public DbSet<ItemTags> ItemTags { get; init; }
         public DbSet<ItemPlatforms> ItemPlatforms { get; init; }
 

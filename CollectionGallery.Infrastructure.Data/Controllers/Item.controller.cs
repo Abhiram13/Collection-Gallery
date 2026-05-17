@@ -1,6 +1,7 @@
 using System.Net;
-using CollectionGallery.Domain.Models.Controllers;
+using CollectionGallery.InfraStructure.Data.Item.Models;
 using CollectionGallery.InfraStructure.Data.Services;
+using CollectionGallery.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CollectionGallery.InfraStructure.Data.Controllers;

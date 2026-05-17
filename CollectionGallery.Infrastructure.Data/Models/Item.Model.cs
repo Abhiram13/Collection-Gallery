@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
 
-namespace CollectionGallery.Domain.Models.Controllers;
+namespace CollectionGallery.InfraStructure.Data.Item.Models;
 
 /// <summary>
 /// Represents the form data for a file upload operation.

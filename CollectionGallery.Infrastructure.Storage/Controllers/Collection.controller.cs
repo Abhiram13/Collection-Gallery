@@ -1,7 +1,8 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using CollectionGallery.Infrastructure.Storage.Services;
-using CollectionGallery.Domain.Models.Controllers;
+using CollectionGallery.InfraStructure.Data.Collection.Models;
+using CollectionGallery.Shared.Models;
 
 namespace Storage.Controllers;
 
@@ -9,7 +10,7 @@ namespace Storage.Controllers;
 [Route("collection")]
 public class CollectionController : ControllerBase
 {
-    private CollectionService _service { get; init; }
+    private CollectionService _service { get; }
 
     public CollectionController(CollectionService service)
     {

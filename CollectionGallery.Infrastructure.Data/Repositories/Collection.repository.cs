@@ -1,18 +1,17 @@
 using System.Data.Common;
 using System.Text.Json;
-using CollectionGallery.Domain.Interfaces;
-using CollectionGallery.Domain.Models.Controllers;
-using CollectionGallery.Domain.Models.Entities;
-using CollectionGallery.Domain.Models.Enums;
+using CollectionGallery.InfraStructure.Data.Collection.Models;
+using CollectionGallery.InfraStructure.Data.Entities;
+using CollectionGallery.InfraStructure.Data.Enums;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
 namespace CollectionGallery.InfraStructure.Data.Repository;
 
-public class CollectionRepository : ICollectionRepository
+public class CollectionRepository
 {
     private readonly CollectionGalleryContext _context;
-    private readonly DbSet<Collection> _collectionDataSet;
+    private readonly DbSet<CollectionEntity> _collectionDataSet;
 
     public CollectionRepository(CollectionGalleryContext context)
     {
@@ -97,7 +96,7 @@ public class CollectionRepository : ICollectionRepository
         return details;
     }
 
-    public Task<Collection?> GetCollectionByNameAsync(string collectionName)
+    public Task<CollectionEntity?> GetCollectionByNameAsync(string collectionName)
     {
         throw new NotImplementedException();
     }
@@ -107,12 +106,12 @@ public class CollectionRepository : ICollectionRepository
         throw new NotImplementedException();
     }
 
-    public Task<Collection> InsertAsync(Collection collection)
+    public Task<CollectionEntity> InsertAsync(CollectionEntity collection)
     {
         throw new NotImplementedException();
     }
 
-    public Task<UpdateFieldResult> UpdateByIdAsync(int collectionId, Collection collection)
+    public Task<UpdateFieldResult> UpdateByIdAsync(int collectionId, CollectionEntity collection)
     {
         throw new NotImplementedException();
     }

@@ -1,5 +1,5 @@
-using CollectionGallery.Domain.Models.Entities;
 using CollectionGallery.InfraStructure.Data.Services;
+using CollectionGallery.InfraStructure.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CollectionGallery.InfraStructure.Data.Controllers;

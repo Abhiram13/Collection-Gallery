@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Abhiram.Secrets.Providers;
-using Abhiram.Secrets.Providers.Interface;
 using CollectionGallery.InfraStructure.Data.Services;
 using System.Net;
 
@@ -22,7 +21,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDependencyServices(this IServiceCollection collection)
     {
         collection.AddHostedService<SubscriberBackgroundService>();
-        collection.AddScoped<ISecretManager, SecretManagerService>();
         collection.AddScoped<SubscriberService>();
         collection.AddScoped<ModelService>();
         collection.AddScoped<ItemService>();
@@ -35,20 +33,20 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddDBContext(this IServiceCollection collection)
     {
-        collection.AddDbContext<CollectionGalleryContext>(async (provider, options) =>
-        {
-            ISecretManager secretManager = provider.GetRequiredService<ISecretManager>();
-            string? postgresHost = await secretManager.GetSecretAsync("POSTGRES_HOST");
-            string? postgresPort = await secretManager.GetSecretAsync("POSTGRES_PORT");
-            string? postgresDatabase = await secretManager.GetSecretAsync("POSTGRES_DATABASE");
-            string? postgresUsername = await secretManager.GetSecretAsync("POSTGRES_USERNAME");
-            string? postgresPassword = await secretManager.GetSecretAsync("POSTGRES_PASSWORD");
-            string? postgresReadDataBase = await secretManager.GetSecretAsync("POSTGRES_READ_DATABASE");
-            string? postgresConnectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresDatabase};Username={postgresUsername};Password={postgresPassword}";
-            string? postgresReadConnectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresReadDataBase};Username={postgresUsername};Password={postgresPassword}";
-
-            options.UseNpgsql(postgresConnectionString).LogTo(_ => { }, LogLevel.Warning);
-        });
+        // collection.AddDbContext<CollectionGalleryContext>(async (provider, options) =>
+        // {
+        //     ISecretManager secretManager = provider.GetRequiredService<ISecretManager>();
+        //     string? postgresHost = await secretManager.GetSecretAsync("POSTGRES_HOST");
+        //     string? postgresPort = await secretManager.GetSecretAsync("POSTGRES_PORT");
+        //     string? postgresDatabase = await secretManager.GetSecretAsync("POSTGRES_DATABASE");
+        //     string? postgresUsername = await secretManager.GetSecretAsync("POSTGRES_USERNAME");
+        //     string? postgresPassword = await secretManager.GetSecretAsync("POSTGRES_PASSWORD");
+        //     string? postgresReadDataBase = await secretManager.GetSecretAsync("POSTGRES_READ_DATABASE");
+        //     string? postgresConnectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresDatabase};Username={postgresUsername};Password={postgresPassword}";
+        //     string? postgresReadConnectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresReadDataBase};Username={postgresUsername};Password={postgresPassword}";
+        //
+        //     options.UseNpgsql(postgresConnectionString).LogTo(_ => { }, LogLevel.Warning);
+        // });
 
         return collection;
     }

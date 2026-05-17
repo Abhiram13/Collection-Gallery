@@ -1,6 +1,6 @@
-namespace CollectionGallery.Domain.Models.Services;
+namespace CollectionGallery.InfraStructure.Storage.Models;
 
-public class FileContentType
+public static class FileContentType
 {
     public const string JPEG = "image/jpeg";
     public const string PNG = "image/png";

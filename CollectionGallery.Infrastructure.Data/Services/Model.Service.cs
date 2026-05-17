@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using CollectionGallery.Domain.Models.Entities;
+using CollectionGallery.InfraStructure.Data.Entities;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 

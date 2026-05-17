@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace CollectionGallery.Shared;
 
+[Obsolete("Use IConfiguration")]
 public sealed class Constants
 {
     public static readonly string StorageBucket = Environment.GetEnvironmentVariable("STORAGE_BUCKET") ?? throw new KeyNotFoundException("STORAGE_BUCKET key not found");

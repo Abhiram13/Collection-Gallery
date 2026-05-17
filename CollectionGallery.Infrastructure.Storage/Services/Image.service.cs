@@ -5,7 +5,7 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Webp;
-using CollectionGallery.Domain.Models.Services;
+using CollectionGallery.InfraStructure.Storage.Models;
 
 namespace CollectionGallery.Infrastructure.Storage.Services;
 

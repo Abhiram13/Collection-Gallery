@@ -1,34 +1,30 @@
-using CollectionGallery.Domain.Models.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
+using CollectionGallery.InfraStructure.Data.Enums;
 
-namespace CollectionGallery.Domain.Models.Entities;
+namespace CollectionGallery.InfraStructure.Data.Entities;
 
 [Table("items")]
-public class Item : DBTable
+public class Item : BaseEntity
 {
     [Column("name")]
-    [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
     [Column("extension")]
-    [JsonPropertyName("extension")]
     public string Extension { get; set; } = string.Empty;
 
     [Column("model_id")]
-    [JsonPropertyName("modelId")]
     public int? ModelId { get; set; }
 
     [ForeignKey("ModelId")]
     public Model Models { get; set; } = default!;
 
     [Column("parent_collection_id")]
-    [JsonPropertyName("parentCollectionId")]
     public int? ParentCollectionId { get; set; } = null;
 
     [ForeignKey("ParentCollectionId")]
     public Collection Collections { get; set; } = default!;
 
     [Column("size")]
-    [JsonPropertyName("size")]
     public FileSize Size { get; set; } = FileSize.Original;
 
     public List<ItemTags> FileTags { get; set; } = new List<ItemTags>();
@@ -39,12 +35,10 @@ public class Item : DBTable
 public class ItemTags
 {
     [Column("item_id")]
-    [JsonPropertyName("itemId")]
     public int ItemId { get; set; }
     public Item Item { get; set; } = default!;
 
     [Column("tag_id")]
-    [JsonPropertyName("tagId")]
     public int TagId { get; set; }
     public Tags Tag { get; set; } = default!;
 }
@@ -53,12 +47,10 @@ public class ItemTags
 public class ItemPlatforms
 {
     [Column("item_id")]
-    [JsonPropertyName("itemId")]
     public int ItemId { get; set; }
     public Item Item { get; set; } = default!;
 
     [Column("platform_id")]
-    [JsonPropertyName("platformId")]
     public int PlatformId { get; set; }
     public Platforms Platform { get; set; } = default!;
 }

@@ -1,7 +1,8 @@
 # Use a build argument for the PAT
 ARG NUGET_PAT
+ARG DOTNET_VERSION=10.0-alpine
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build-env
 WORKDIR /app
 
 # Copy solution and props from root (build context must be repo root)

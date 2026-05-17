@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using CollectionGallery.Domain.Models.Entities;
+using CollectionGallery.InfraStructure.Data.Entities;
 using CollectionGallery.InfraStructure.Data.Services;
-using CollectionGallery.Domain.Models.Controllers;
+using CollectionGallery.InfraStructure.Data.Collection.Models;
+using CollectionGallery.Shared.Models;
 
 namespace CollectionGallery.InfraStructure.Data.Controllers;
 
@@ -19,7 +20,7 @@ public class CollectionController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponse<string>>> CreateAsync([FromBody] Collection body)
+    public async Task<ActionResult<ApiResponse<string>>> CreateAsync([FromBody] CollectionEntity body)
     {
         string traceId = Guid.NewGuid().ToString();
         try
@@ -102,7 +103,7 @@ public class CollectionController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateAsync(int id, [FromBody] Collection body)
+    public async Task<ActionResult> UpdateAsync(int id, [FromBody] CollectionEntity body)
     {
         await _collectionService.UpdateByIdAsync(id, body);
         return Ok();

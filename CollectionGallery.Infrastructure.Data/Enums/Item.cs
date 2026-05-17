@@ -1,4 +1,4 @@
-namespace CollectionGallery.Domain.Models.Enums;
+namespace CollectionGallery.InfraStructure.Data.Enums;
 
 public enum FileSize
 {

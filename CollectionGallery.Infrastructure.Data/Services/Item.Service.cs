@@ -1,8 +1,8 @@
 using System.Data.Common;
 using System.Text.Json;
-using CollectionGallery.Domain.Models.Controllers;
-using CollectionGallery.Domain.Models.Entities;
-using CollectionGallery.Domain.Models.Enums;
+using CollectionGallery.InfraStructure.Data.Enums;
+using CollectionGallery.InfraStructure.Data.Entities;
+using CollectionGallery.InfraStructure.Data.Item.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Npgsql;
@@ -17,7 +17,7 @@ public class ItemService
     private readonly TagService _tagService;
     private readonly PlatformService _platformService;
     private readonly ILogger<ItemService> _logger;
-    private readonly DbSet<Item> _itemContext;
+    private readonly DbSet<ItemEntity> _itemContext;
 
     public ItemService(CollectionGalleryContext context, ModelService service, CollectionService collectionService, ILogger<ItemService> logger, TagService tagService, PlatformService platformService)
     {
@@ -39,7 +39,7 @@ public class ItemService
             {
                 DateTime dateTime = DateTime.UtcNow;
                 // Model model = await _modelService.InsertAsync(new Model { Name = data.Model, CreatedAt = dateTime, UpdatedAt = dateTime });
-                Item? item = await SearchByName(data.FileName);
+                ItemEntity? item = await SearchByName(data.FileName);
 
                 if (item is not null)
                 {
@@ -47,7 +47,7 @@ public class ItemService
                     return MethodStatus.SUCCESS;
                 }
 
-                Item newItem = new Item
+                ItemEntity newItem = new ItemEntity
                 {
                     CreatedAt = dateTime,
                     Extension = data.Extension,
@@ -75,9 +75,9 @@ public class ItemService
         }
     }
 
-    private async Task<Item?> SearchByName(string fileName)
+    private async Task<ItemEntity?> SearchByName(string fileName)
     {
-        Item? item = await _context.Items.FirstOrDefaultAsync(i => i.Name.ToLower() == fileName.ToLower());
+        ItemEntity? item = await _context.Items.FirstOrDefaultAsync(i => i.Name.ToLower() == fileName.ToLower());
         return item;
     }
 
