@@ -1,42 +1,159 @@
+using CollectionGallery.InfraStructure.Data;
 using Microsoft.EntityFrameworkCore;
 using CollectionGallery.InfraStructure.Data.Entities;
+using Microsoft.EntityFrameworkCore.Design;
+using CollectionTable = CollectionGallery.InfraStructure.Data.Constants.DbTableNames.Collection;
+using ItemTable = CollectionGallery.InfraStructure.Data.Constants.DbTableNames.Item;
+using FileTable = CollectionGallery.InfraStructure.Data.Constants.DbTableNames.File;
+using TagTable = CollectionGallery.InfraStructure.Data.Constants.DbTableNames.Tag;
+using ItemTagTable = CollectionGallery.InfraStructure.Data.Constants.DbTableNames.ItemTag;
 
-namespace CollectionGallery.InfraStructure.Data
+namespace CollectionGallery.InfraStructure.Data;
+
+public abstract class BaseDbContext<TContext> : DbContext where TContext : DbContext
 {
-    public abstract class BaseDbContext<TContext> : DbContext where TContext : DbContext
-    {
-        public BaseDbContext(DbContextOptions<TContext> options) : base(options) { }
-        
-        public DbSet<Model> Models { get; init; }
-        public DbSet<ItemEntity> Items { get; init; }
-        public DbSet<Tags> Tags { get; init; }
-        public DbSet<CollectionEntity> Collections { get; init; }
-        public DbSet<ItemTags> ItemTags { get; init; }
-    }
+    public BaseDbContext(DbContextOptions<TContext> options) : base(options) { }
 
-    public sealed class WriteDBContext : BaseDbContext<WriteDBContext>
+    public DbSet<CollectionEntity> Collections { get; init; }
+    public DbSet<ItemEntity> Items { get; init; }
+    public DbSet<CollectionFile> CollectionFiles { get; init; }
+    public DbSet<Tags> Tags { get; init; }
+    public DbSet<ItemTags> ItemTags { get; init; }
+}
+
+public sealed class WriteDbContext : BaseDbContext<WriteDbContext>
+{
+    public WriteDbContext(DbContextOptions<WriteDbContext> options) : base(options) { }
+}
+
+public sealed class ReadDbContext : BaseDbContext<ReadDbContext>
+{
+    public ReadDbContext(DbContextOptions<ReadDbContext> options) : base(options) { }
+}
+
+public sealed class MigrateDbContext : BaseDbContext<MigrateDbContext>
+{
+    public MigrateDbContext(DbContextOptions<MigrateDbContext> options) : base(options) { }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        public WriteDBContext(DbContextOptions<WriteDBContext> options) : base(options) { }
-        
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<CollectionEntity>(entity =>
         {
-            base.OnModelCreating(modelBuilder);
-            
-            // Item tags
-            modelBuilder.Entity<ItemTags>().HasKey(it => new { it.ItemId, it.TagId });
-            modelBuilder.Entity<ItemTags>().HasOne(it => it.Item).WithMany(i => i.ItemTags).HasForeignKey(it => it.ItemId);
-            modelBuilder.Entity<ItemTags>().HasOne(it => it.Tag).WithMany(t => t.ItemTags).HasForeignKey(it => it.TagId);
-            // Item tags
-        }
-    }
+            entity.ToTable(CollectionTable.TABLE_NAME).HasKey(c => c.Id);
+            entity.Property(c => c.Name).IsRequired().HasMaxLength(255);
+            entity.Property(c => c.CreatedAt).IsRequired();
+            entity.Property(c => c.UpdatedAt).IsRequired();
 
-    public sealed class ReadDbContext : BaseDbContext<ReadDbContext>
-    {
-        public ReadDbContext(DbContextOptions<ReadDbContext> options) : base(options) { }
-    }
-    
-    public sealed class MigrateDbContext : BaseDbContext<MigrateDbContext>
-    {
-        public MigrateDbContext(DbContextOptions<MigrateDbContext> options) : base(options) { }
+            entity.HasOne(c => c.ParentCollection)
+                .WithMany(c => c.ChildCollections)
+                .HasForeignKey(c => c.ParentCollectionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(c => c.CoverItem)
+                .WithMany(i => i.CoveredCollections)
+                .HasForeignKey(c => c.CoverItemId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
+
+            entity.HasIndex(c => c.ParentCollectionId);
+            entity.HasIndex(c => new { c.ParentCollectionId, c.Name }).IsUnique(false);
+            entity.HasQueryFilter(c => c.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<ItemEntity>(entity =>
+        {
+            entity.ToTable(ItemTable.TABLE_NAME).HasKey(i => i.Id);
+            entity.Property(i => i.Name).IsRequired().HasMaxLength(255);
+            entity.Property(i => i.CreatedAt).IsRequired();
+            entity.Property(i => i.UpdatedAt).IsRequired();
+
+            // One-to-one Item <-> File
+            entity.HasOne(i => i.CollectionFile)
+                .WithOne(f => f.Item)
+                .HasForeignKey<ItemEntity>(i => i.FileId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Collection relationship
+            entity.HasOne(i => i.Collection)
+                .WithMany(c => c.Items)
+                .HasForeignKey(i => i.CollectionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Unique constraint for one-to-one
+            entity.HasIndex(i => i.FileId).IsUnique();
+            entity.HasIndex(i => i.CollectionId);
+            entity.HasQueryFilter(i => i.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<CollectionFile>(entity =>
+        {
+            entity.ToTable(FileTable.TABLE_NAME).HasKey(f => f.Id);
+            entity.Property(f => f.Name).IsRequired();
+            entity.Property(f => f.Extension).IsRequired().HasMaxLength(20);
+            entity.Property(f => f.MimeType).IsRequired().HasMaxLength(100);
+            entity.Property(f => f.Bucket);
+            entity.Property(f => f.StorageKey).IsRequired().HasMaxLength(1000);
+            entity.Property(f => f.Size).IsRequired();
+            entity.Property(f => f.CreatedAt).IsRequired();
+            entity.Property(f => f.UpdatedAt).IsRequired();
+            entity.HasQueryFilter(f => f.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<Tags>(entity =>
+        {
+            entity.ToTable(TagTable.TABLE_NAME).HasKey(t => t.Id);
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            entity.Property(t => t.CreatedAt).IsRequired();
+            entity.Property(t => t.UpdatedAt).IsRequired();
+            entity.HasIndex(t => t.Name).IsUnique();
+            entity.HasQueryFilter(t => t.DeletedAt == null);
+        });
+
+        modelBuilder.Entity<ItemTags>(entity =>
+        {
+            entity.ToTable(ItemTagTable.TABLE_NAME).HasKey(it => new { it.ItemId, it.TagId });
+
+            entity.HasOne(it => it.Item)
+                .WithMany(i => i.ItemTags)
+                .HasForeignKey(it => it.ItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(it => it.Tag)
+                .WithMany(t => t.ItemTags)
+                .HasForeignKey(it => it.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
+
+// public class WriteDbContextFactory : IDesignTimeDbContextFactory<WriteDbContext>
+// {
+//     public WriteDbContext CreateDbContext(string[] args)
+//     {
+//         // BUG: Hardcoding of the strings is working in the connection string. But loading from configuration is not.
+//         // seems the directory is not right
+//         IConfigurationRoot configuration = new ConfigurationBuilder()
+//             .SetBasePath(Directory.GetCurrentDirectory())
+//             .AddJsonFile("appsettings.json", optional: true)
+//             .AddEnvironmentVariables()
+//             .Build();
+//
+//         DbContextOptionsBuilder<WriteDbContext> optionsBuilder = new DbContextOptionsBuilder<WriteDbContext>();
+//
+//         // 2. Extract your migration-specific credentials
+//         // You can hardcode this temporarily to test, or pull from config:
+//         var user = configuration["Postgres:Migrate:Username"];
+//         var pass = configuration["Postgres:Migrate:Password"];
+//         var host = configuration["Postgres:Migrate:Host"];
+//         var db = configuration["Postgres:Migrate:Database"];
+//         var port = configuration["Postgres:Migrate:Port"];
+//
+//         string connectionString = $"Host={host};Port={port};Database={db};Username={user};Password={pass}";
+//
+//         optionsBuilder.UseNpgsql(connectionString);
+//
+//         return new WriteDbContext(optionsBuilder.Options);
+//     }
+// }

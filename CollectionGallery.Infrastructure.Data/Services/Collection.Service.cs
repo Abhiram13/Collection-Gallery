@@ -10,12 +10,12 @@ namespace CollectionGallery.InfraStructure.Data.Services;
 
 public class CollectionService
 {
-    private readonly WriteDBContext _context;
+    private readonly WriteDbContext _context;
     private readonly DbSet<CollectionEntity> _collectionDataSet;
     private readonly ILogger<CollectionService> _logger;
     private DateTime _dateTime;
 
-    public CollectionService(WriteDBContext context, ILogger<CollectionService> logger)
+    public CollectionService(WriteDbContext context, ILogger<CollectionService> logger)
     {
         _context = context;
         _collectionDataSet = _context.Collections;
@@ -47,12 +47,14 @@ public class CollectionService
 
     public async Task<List<ParentCollections>> ListOfParentCollections()
     {
-        List<ParentCollections> parentCollections = await _collectionDataSet
-            .Where(c => c.ParentCollectionId == null)
-            .Select(c => new ParentCollections { CollectionPic = c.CollectionPic, Id = c.Id, Name = c.Name })
-            .ToListAsync();
+        // List<ParentCollections> parentCollections = await _collectionDataSet
+        //     .Where(c => c.ParentCollectionId == null)
+        //     .Select(c => new ParentCollections { CollectionPic = c.CollectionPic, Id = c.Id, Name = c.Name })
+        //     .ToListAsync();
 
-        return parentCollections;
+        // return parentCollections;
+
+        return new List<ParentCollections>();
     }
 
     public async Task<CollectionDetailsById> CollectionsById(int id)
@@ -134,8 +136,10 @@ public class CollectionService
 
     private async Task<bool> IsCollectionExist(int collectionId)
     {
-        int collectionCount = await _collectionDataSet.CountAsync(c => c.Id == collectionId);
-        return collectionCount > 0;
+        // int collectionCount = await _collectionDataSet.CountAsync(c => c.Id == collectionId);
+        // return collectionCount > 0;
+
+        return true;
     }
 
     public async Task<UpdateFieldResult> UpdateByIdAsync(int collectionId, CollectionEntity body)
@@ -154,9 +158,9 @@ public class CollectionService
             return UpdateFieldResult.NotFound;
         }
 
-        if (!string.IsNullOrEmpty(body.Name)) existingCollection.Name = body.Name;
-        if (body.CollectionPic is not null) existingCollection.CollectionPic = body.CollectionPic;
-        if (body.ParentCollectionId is not null) existingCollection.ParentCollectionId = body.ParentCollectionId;
+        // if (!string.IsNullOrEmpty(body.Name)) existingCollection.Name = body.Name;
+        // if (body.CollectionPic is not null) existingCollection.CollectionPic = body.CollectionPic;
+        // if (body.ParentCollectionId is not null) existingCollection.ParentCollectionId = body.ParentCollectionId;
         existingCollection.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();

@@ -11,9 +11,9 @@ public class TagService
     private readonly ILogger<TagService> _logger;
     private readonly DbSet<Tags> _tagDbSet;
     private readonly DbSet<ItemTags> _itemTagDbSet;
-    private readonly WriteDBContext _context;
+    private readonly WriteDbContext _context;
 
-    public TagService(ILogger<TagService> logger, WriteDBContext context)
+    public TagService(ILogger<TagService> logger, WriteDbContext context)
     {
         _logger = logger;
         _context = context;
@@ -61,8 +61,10 @@ public class TagService
 
     public async Task<List<TagList>> ListTagsAsync()
     {
-        List<TagList> list = await _tagDbSet.Where(t => !string.IsNullOrEmpty(t.Name)).Select(t => new TagList { Id = t.Id, Name = t.Name }).ToListAsync();
-        return list;
+        // List<TagList> list = await _tagDbSet.Where(t => !string.IsNullOrEmpty(t.Name)).Select(t => new TagList { Id = t.Id, Name = t.Name }).ToListAsync();
+        // return list;
+
+        return new List<TagList>();
     }
 
     public async Task<UpdateFieldResult> UpdateByIdAsync(int tagId, Tags body)

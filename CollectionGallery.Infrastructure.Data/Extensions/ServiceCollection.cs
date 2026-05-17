@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
         {
             collection
                 .AddOptionConfigurations(configuration)
-                .AddPostgresDBContext<WriteDBContext>(DatabaseType.WRITE)
+                .AddPostgresDBContext<WriteDbContext>(DatabaseType.WRITE)
                 .AddPostgresDBContext<ReadDbContext>(DatabaseType.READ)
                 .AddPostgresDBContext<MigrateDbContext>(DatabaseType.MIGRATE)
                 .AddDependencyServices()
@@ -38,7 +38,6 @@ public static class ServiceCollectionExtensions
         {
             collection.AddHostedService<SubscriberBackgroundService>();
             collection.AddScoped<SubscriberService>();
-            collection.AddScoped<ModelService>();
             collection.AddScoped<ItemService>();
             collection.AddScoped<CollectionService>();
             collection.AddScoped<TagService>();

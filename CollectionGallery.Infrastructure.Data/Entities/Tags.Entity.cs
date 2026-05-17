@@ -1,13 +1,15 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
+using TagTable = CollectionGallery.InfraStructure.Data.Constants.DbTableNames.Tag;
+
 namespace CollectionGallery.InfraStructure.Data.Entities;
 
-[Table("tags")]
+[Table(TagTable.TABLE_NAME)]
 public class Tags : BaseEntity
 {
-    [Column("name")]
+    [Column(TagTable.NAME)]
     public string Name { get; set; } = string.Empty;
 
-    public List<ItemTags> ItemTags { get; init; } = new List<ItemTags>();
+    public ICollection<ItemTags> ItemTags { get; set; } = new List<ItemTags>();
 }

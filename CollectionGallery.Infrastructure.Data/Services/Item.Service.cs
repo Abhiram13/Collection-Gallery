@@ -11,17 +11,15 @@ namespace CollectionGallery.InfraStructure.Data.Services;
 
 public class ItemService
 {
-    private readonly WriteDBContext _context;
-    private readonly ModelService _modelService;
+    private readonly WriteDbContext _context;
     private readonly CollectionService _collectionService;
     private readonly TagService _tagService;
     private readonly ILogger<ItemService> _logger;
     private readonly DbSet<ItemEntity> _itemContext;
 
-    public ItemService(WriteDBContext context, ModelService service, CollectionService collectionService, ILogger<ItemService> logger, TagService tagService)
+    public ItemService(WriteDbContext context, CollectionService collectionService, ILogger<ItemService> logger, TagService tagService)
     {
         _context = context;
-        _modelService = service;
         _collectionService = collectionService;
         _logger = logger;
         _tagService = tagService;
@@ -45,19 +43,19 @@ public class ItemService
                     return MethodStatus.SUCCESS;
                 }
 
-                ItemEntity newItem = new ItemEntity
-                {
-                    CreatedAt = dateTime,
-                    Extension = data.Extension,
-                    ModelId = data.ModelId,
-                    Name = data.FileName,
-                    ParentCollectionId = data.CollectionId == 0 ? null : data.CollectionId,
-                    UpdatedAt = dateTime,
-                };
+                // ItemEntity newItem = new ItemEntity
+                // {
+                //     CreatedAt = dateTime,
+                //     Extension = data.Extension,
+                //     ModelId = data.ModelId,
+                //     Name = data.FileName,
+                //     ParentCollectionId = data.CollectionId == 0 ? null : data.CollectionId,
+                //     UpdatedAt = dateTime,
+                // };
 
-                await _context.Items.AddAsync(newItem);
+                // await _context.Items.AddAsync(newItem);
                 await _context.SaveChangesAsync();
-                await _tagService.AddItemTagsAsync(newItem.Id, data.Tags);
+                // await _tagService.AddItemTagsAsync(newItem.Id, data.Tags);
 
                 await database.CommitTransactionAsync();
                 _logger.LogInformation("File ({0}) was insert in database succcessfully. Trace ID: {1}", data.FileName, data.TraceId);
@@ -81,9 +79,11 @@ public class ItemService
     public async Task<List<ItemList>> ListAsync()
     {
         string storageServer = Environment.GetEnvironmentVariable("STORAGE_SERVER")!;
-        List<ItemList> list = await _itemContext.Select(i => new ItemList { Id = i.Id, Url = $"{storageServer}/{i.Name}" }).ToListAsync();
-        List<ItemList> repeated = list.SelectMany(item => Enumerable.Repeat(item, 20)).ToList();
-        return repeated;
+        // List<ItemList> list = await _itemContext.Select(i => new ItemList { Id = i.Id, Url = $"{storageServer}/{i.Name}" }).ToListAsync();
+        // List<ItemList> repeated = list.SelectMany(item => Enumerable.Repeat(item, 20)).ToList();
+        // return repeated;
+
+        return new List<ItemList>();
     }
 
     public async Task<ItemDetails> ItemByIdAsync(int id)

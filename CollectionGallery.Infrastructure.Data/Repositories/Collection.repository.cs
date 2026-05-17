@@ -10,10 +10,10 @@ namespace CollectionGallery.InfraStructure.Data.Repository;
 
 public class CollectionRepository
 {
-    private readonly WriteDBContext _context;
+    private readonly WriteDbContext _context;
     private readonly DbSet<CollectionEntity> _collectionDataSet;
 
-    public CollectionRepository(WriteDBContext context)
+    public CollectionRepository(WriteDbContext context)
     {
         _context = context;
         _collectionDataSet = context.Collections;
