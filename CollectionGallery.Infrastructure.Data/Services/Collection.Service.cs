@@ -10,12 +10,12 @@ namespace CollectionGallery.InfraStructure.Data.Services;
 
 public class CollectionService
 {
-    private readonly CollectionGalleryContext _context;
+    private readonly WriteDBContext _context;
     private readonly DbSet<CollectionEntity> _collectionDataSet;
     private readonly ILogger<CollectionService> _logger;
     private DateTime _dateTime;
 
-    public CollectionService(CollectionGalleryContext context, ILogger<CollectionService> logger)
+    public CollectionService(WriteDBContext context, ILogger<CollectionService> logger)
     {
         _context = context;
         _collectionDataSet = _context.Collections;

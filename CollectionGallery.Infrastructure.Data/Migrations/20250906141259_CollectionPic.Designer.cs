@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CollectionGallery.Infrastructure.Data.Migrations
 {
-    [DbContext(typeof(CollectionGalleryContext))]
+    [DbContext(typeof(WriteDBContext))]
     [Migration("20250906141259_CollectionPic")]
     partial class CollectionPic
     {

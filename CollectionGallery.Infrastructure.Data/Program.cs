@@ -7,37 +7,13 @@ using CollectionGallery.InfraStructure.Data.Services;
 using Abhiram.Extensions.DotEnv;
 using Abhiram.Abstractions.Logging;
 using Abhiram.Secrets.Providers;
+using CollectionGallery.InfraStructure.Data.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 DotEnvironmentVariables.Load();
 
 builder.AddConsoleGoogleSeriLog();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddControllers();
-builder.Services.AddRouting();
-builder.Services.AddHostedService<SubscriberBackgroundService>();
-builder.Services.AddScoped<SubscriberService>();
-builder.Services.AddScoped<ModelService>();
-builder.Services.AddScoped<ItemService>();
-builder.Services.AddScoped<CollectionService>();
-builder.Services.AddScoped<PlatformService>();
-builder.Services.AddScoped<TagService>();
-// builder.Services.AddDbContext<CollectionGalleryContext>(async (provider, options) =>
-// {
-//     ISecretManager secretManager = provider.GetRequiredService<ISecretManager>();
-//     string? postgresHost = await secretManager.GetSecretAsync("POSTGRES_HOST");
-//     string? postgresPort = await secretManager.GetSecretAsync("POSTGRES_PORT");
-//     string? postgresDatabase = await secretManager.GetSecretAsync("POSTGRES_DATABASE");
-//     string? postgresUsername = await secretManager.GetSecretAsync("POSTGRES_USERNAME");
-//     string? postgresPassword = await secretManager.GetSecretAsync("POSTGRES_PASSWORD");
-//     string? postgresReadDataBase = await secretManager.GetSecretAsync("POSTGRES_READ_DATABASE");
-//     string? postgresConnectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresDatabase};Username={postgresUsername};Password={postgresPassword}";
-//     string? postgresReadConnectionString = $"Host={postgresHost};Port={postgresPort};Database={postgresReadDataBase};Username={postgresUsername};Password={postgresPassword}";
-//     options
-//         .UseNpgsql(postgresConnectionString)
-//         .LogTo(_ => { }, LogLevel.Warning);
-// });
+builder.Services.AddApplicationCollections(builder.Configuration);
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 builder.WebHost.ConfigureKestrel((_, server) => {
     string portNumber = Environment.GetEnvironmentVariable("PORT") ?? "3001";
@@ -51,7 +27,7 @@ using (IServiceScope? scope = app.Services.CreateScope())
     ILogger<Program> logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     try
     {
-        CollectionGalleryContext context = scope.ServiceProvider.GetRequiredService<CollectionGalleryContext>();
+        MigrateDbContext context = scope.ServiceProvider.GetRequiredService<MigrateDbContext>();
         context.Database.Migrate();
     }
     catch (Exception e)

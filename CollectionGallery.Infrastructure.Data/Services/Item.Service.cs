@@ -11,22 +11,20 @@ namespace CollectionGallery.InfraStructure.Data.Services;
 
 public class ItemService
 {
-    private readonly CollectionGalleryContext _context;
+    private readonly WriteDBContext _context;
     private readonly ModelService _modelService;
     private readonly CollectionService _collectionService;
     private readonly TagService _tagService;
-    private readonly PlatformService _platformService;
     private readonly ILogger<ItemService> _logger;
     private readonly DbSet<ItemEntity> _itemContext;
 
-    public ItemService(CollectionGalleryContext context, ModelService service, CollectionService collectionService, ILogger<ItemService> logger, TagService tagService, PlatformService platformService)
+    public ItemService(WriteDBContext context, ModelService service, CollectionService collectionService, ILogger<ItemService> logger, TagService tagService)
     {
         _context = context;
         _modelService = service;
         _collectionService = collectionService;
         _logger = logger;
         _tagService = tagService;
-        _platformService = platformService;
         _itemContext = context.Items;
     }
 
@@ -60,7 +58,6 @@ public class ItemService
                 await _context.Items.AddAsync(newItem);
                 await _context.SaveChangesAsync();
                 await _tagService.AddItemTagsAsync(newItem.Id, data.Tags);
-                await _platformService.AddPlatformTagsAsync(newItem.Id, data.Platforms);
 
                 await database.CommitTransactionAsync();
                 _logger.LogInformation("File ({0}) was insert in database succcessfully. Trace ID: {1}", data.FileName, data.TraceId);

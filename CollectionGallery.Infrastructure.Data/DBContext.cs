@@ -3,31 +3,40 @@ using CollectionGallery.InfraStructure.Data.Entities;
 
 namespace CollectionGallery.InfraStructure.Data
 {
-    public class CollectionGalleryContext : DbContext
+    public abstract class BaseDbContext<TContext> : DbContext where TContext : DbContext
     {
-        public CollectionGalleryContext(DbContextOptions<CollectionGalleryContext> options) : base(options) { }
+        public BaseDbContext(DbContextOptions<TContext> options) : base(options) { }
+        
         public DbSet<Model> Models { get; init; }
         public DbSet<ItemEntity> Items { get; init; }
         public DbSet<Tags> Tags { get; init; }
-        public DbSet<Platforms> Platforms { get; init; }
         public DbSet<CollectionEntity> Collections { get; init; }
         public DbSet<ItemTags> ItemTags { get; init; }
-        public DbSet<ItemPlatforms> ItemPlatforms { get; init; }
+    }
 
+    public sealed class WriteDBContext : BaseDbContext<WriteDBContext>
+    {
+        public WriteDBContext(DbContextOptions<WriteDBContext> options) : base(options) { }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // base.OnModelCreating(modelBuilder);
-            // FileTags
+            base.OnModelCreating(modelBuilder);
+            
+            // Item tags
             modelBuilder.Entity<ItemTags>().HasKey(it => new { it.ItemId, it.TagId });
-            modelBuilder.Entity<ItemTags>().HasOne(it => it.Item).WithMany(i => i.FileTags).HasForeignKey(it => it.ItemId);
-            modelBuilder.Entity<ItemTags>().HasOne(it => it.Tag).WithMany(t => t.FileTags).HasForeignKey(it => it.TagId);
-            // ImageTags
-
-            // ImagePlatforms
-            modelBuilder.Entity<ItemPlatforms>().HasKey(it => new { it.ItemId, it.PlatformId });
-            modelBuilder.Entity<ItemPlatforms>().HasOne(it => it.Item).WithMany(i => i.FilePlatforms).HasForeignKey(it => it.ItemId);
-            modelBuilder.Entity<ItemPlatforms>().HasOne(it => it.Platform).WithMany(t => t.FilePlatforms).HasForeignKey(it => it.PlatformId);
-            // ImagePlatforms       
+            modelBuilder.Entity<ItemTags>().HasOne(it => it.Item).WithMany(i => i.ItemTags).HasForeignKey(it => it.ItemId);
+            modelBuilder.Entity<ItemTags>().HasOne(it => it.Tag).WithMany(t => t.ItemTags).HasForeignKey(it => it.TagId);
+            // Item tags
         }
+    }
+
+    public sealed class ReadDbContext : BaseDbContext<ReadDbContext>
+    {
+        public ReadDbContext(DbContextOptions<ReadDbContext> options) : base(options) { }
+    }
+    
+    public sealed class MigrateDbContext : BaseDbContext<MigrateDbContext>
+    {
+        public MigrateDbContext(DbContextOptions<MigrateDbContext> options) : base(options) { }
     }
 }

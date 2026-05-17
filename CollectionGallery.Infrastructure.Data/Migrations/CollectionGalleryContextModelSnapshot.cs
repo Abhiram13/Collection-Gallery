@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CollectionGallery.Infrastructure.Data.Migrations
 {
-    [DbContext(typeof(CollectionGalleryContext))]
+    [DbContext(typeof(WriteDBContext))]
     partial class CollectionGalleryContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

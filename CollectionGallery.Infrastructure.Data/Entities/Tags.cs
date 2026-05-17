@@ -9,5 +9,5 @@ public class Tags : BaseEntity
     [Column("name")]
     public string Name { get; set; } = string.Empty;
 
-    public List<ItemTags> FileTags { get; set; } = new List<ItemTags>();
+    public List<ItemTags> ItemTags { get; init; } = new List<ItemTags>();
 }

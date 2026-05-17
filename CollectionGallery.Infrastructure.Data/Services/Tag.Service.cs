@@ -11,9 +11,9 @@ public class TagService
     private readonly ILogger<TagService> _logger;
     private readonly DbSet<Tags> _tagDbSet;
     private readonly DbSet<ItemTags> _itemTagDbSet;
-    private readonly CollectionGalleryContext _context;
+    private readonly WriteDBContext _context;
 
-    public TagService(ILogger<TagService> logger, CollectionGalleryContext context)
+    public TagService(ILogger<TagService> logger, WriteDBContext context)
     {
         _logger = logger;
         _context = context;

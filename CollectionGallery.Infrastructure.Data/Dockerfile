@@ -1,40 +1,38 @@
-# Use a build argument for the PAT
 ARG NUGET_PAT
 ARG DOTNET_VERSION=10.0-alpine
+ARG APP_ENV
 
-FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build-env
-WORKDIR /app
-
-# Copy solution and props from root (build context must be repo root)
-COPY CollectionGallery.sln ./
-COPY Directory.Packages.props ./
-
-# Copy the projects individually
-COPY CollectionGallery.Infrastructure.Data/ ./CollectionGallery.Infrastructure.Data/
-COPY CollectionGallery.Domain.Models/ ./CollectionGallery.Domain.Models/
-COPY CollectionGallery.Shared/ ./CollectionGallery.Shared/
-
-# Re-declare the build argument to make it available in this stage
+# Build Base Image with SDK
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS base
+ARG APP_ENV
 ARG NUGET_PAT
 
-# Add the private package source using the build argument
-RUN dotnet nuget add source --name "Github" "https://nuget.pkg.github.com/Abhiram13/index.json" --username Abhiram13 --password "${NUGET_PAT}" --store-password-in-clear-text
+# Create and Set working directory inside docker container
+WORKDIR /collection-gallery
 
-# Copy csproj and restore as distinct layers
-# COPY *.csproj ./
-# RUN dotnet restore "Storage.csproj"
+# Run restore command inside container
+RUN dotnet nuget add source --name "github" "https://nuget.pkg.github.com/Abhiram13/index.json" --username Abhiram13 --password "${NUGET_PAT}" --store-password-in-clear-text
 
-# Restore and publish only Storage.csproj
+FROM base AS restore
+COPY CollectionGallery.sln ./
+COPY Directory.Build.props ./
+COPY Directory.Packages.props ./
+COPY CollectionGallery.Infrastructure.Data/ ./CollectionGallery.Infrastructure.Data/
+COPY CollectionGallery.Shared/ ./CollectionGallery.Shared/
 RUN dotnet restore CollectionGallery.Infrastructure.Data/CollectionGallery.Infrastructure.Data.csproj
-RUN dotnet publish CollectionGallery.Infrastructure.Data/CollectionGallery.Infrastructure.Data.csproj -c Release -o /out
 
-# Copy everything else and build
-# COPY . .
-# RUN dotnet publish "Storage.csproj" -c Release -o /out
+FROM restore AS dev
+WORKDIR /collection-gallery/CollectionGallery.Infrastructure.Data
+CMD ["dotnet", "watch", "run"]
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
-WORKDIR /app
-COPY --from=build-env /out ./
+FROM restore AS build
+RUN dotnet build CollectionGallery.Infrastructure.Data/CollectionGallery.Infrastructure.Data.csproj -c Release --no-restore
 
+FROM build AS publish
+ARG APP_ENV
+RUN dotnet publish CollectionGallery.Infrastructure.Data/CollectionGallery.Infrastructure.Data.csproj -c Release -o /out --no-build
+
+FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS runtime
+WORKDIR /collection-gallery
+COPY --from=publish /out ./
 ENTRYPOINT [ "dotnet", "CollectionGallery.Infrastructure.Data.dll" ]

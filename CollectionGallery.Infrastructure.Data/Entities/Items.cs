@@ -27,30 +27,19 @@ public class Item : BaseEntity
     [Column("size")]
     public FileSize Size { get; set; } = FileSize.Original;
 
-    public List<ItemTags> FileTags { get; set; } = new List<ItemTags>();
-    public List<ItemPlatforms> FilePlatforms { get; set; } = new List<ItemPlatforms>();
+    public List<ItemTags> ItemTags { get; set; } = new List<ItemTags>();
 }
 
-[Table("itemtags")]
+[Table("item_tags")]
 public class ItemTags
 {
     [Column("item_id")]
     public int ItemId { get; set; }
+    
     public Item Item { get; set; } = default!;
 
     [Column("tag_id")]
     public int TagId { get; set; }
+    
     public Tags Tag { get; set; } = default!;
-}
-
-[Table("itemplatforms")]
-public class ItemPlatforms
-{
-    [Column("item_id")]
-    public int ItemId { get; set; }
-    public Item Item { get; set; } = default!;
-
-    [Column("platform_id")]
-    public int PlatformId { get; set; }
-    public Platforms Platform { get; set; } = default!;
 }

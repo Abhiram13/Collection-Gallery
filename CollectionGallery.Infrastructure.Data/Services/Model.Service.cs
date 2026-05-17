@@ -5,10 +5,10 @@ namespace CollectionGallery.InfraStructure.Data.Services;
 
 public class ModelService
 {
-    private readonly CollectionGalleryContext _context;
+    private readonly WriteDBContext _context;
     private readonly DbSet<Model> _modelDataSet;
 
-    public ModelService(CollectionGalleryContext context)
+    public ModelService(WriteDBContext context)
     {
         _context = context;
         _modelDataSet = _context.Models;
