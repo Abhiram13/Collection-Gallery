@@ -1,10 +1,8 @@
 ARG NUGET_PAT
 ARG DOTNET_VERSION=10.0-alpine
-ARG APP_ENV
 
 # Build Base Image with SDK
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS base
-ARG APP_ENV
 ARG NUGET_PAT
 
 # Create and Set working directory inside docker container
@@ -29,7 +27,6 @@ FROM restore AS build
 RUN dotnet build CollectionGallery.Infrastructure.Data/CollectionGallery.Infrastructure.Data.csproj -c Release --no-restore
 
 FROM build AS publish
-ARG APP_ENV
 RUN dotnet publish CollectionGallery.Infrastructure.Data/CollectionGallery.Infrastructure.Data.csproj -c Release -o /out --no-build
 
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS runtime

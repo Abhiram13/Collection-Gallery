@@ -1,0 +1,43 @@
+version: "3.9"
+name: collection-gallery
+
+services:
+    api-data:
+        build:
+            context: .
+            dockerfile: CollectionGallery.Infrastructure.Data/Dockerfile
+            target: dev
+            args: # Build time environment args
+                NUGET_PAT: ${NUGET_PAT}                
+                GOOGLE_APPLICATION_CREDENTIALS: /secrets/gcp-credentials.json
+        image: collection-gallery-data
+        ports:
+            - "3001:3001"
+        environment: # Runtime environment args
+            ASPNETCORE_ENVIRONMENT: Development
+            ENV: Development
+            Postgres__Write__Host: host.docker.internal
+            Postgres__Read__Host: host.docker.internal
+            Postgres__Migrate__Host: host.docker.internal        
+        volumes:   
+            - type: bind
+              source: /Volumes/SecureDisk/Collection-Gallery/collection-gallery-data-secrets.json
+              target: /secrets/collection-gallery-data-secrets.json
+              read_only: true
+            - type: bind
+              source: /Volumes/SecureDisk/Collection-Gallery/files-management.json
+              target: /secrets/gcp-credentials.json
+              read_only: true
+            - type: bind
+              source: CollectionGallery.Infrastructure.Data
+              target: /collection-gallery/CollectionGallery.Infrastructure.Data
+            - type: bind
+              source: CollectionGallery.Shared
+              target: /collection-gallery/CollectionGallery.Shared
+                          
+            - /collection-gallery/CollectionGallery.Infrastructure.Data/.config
+            - /collection-gallery/CollectionGallery.Infrastructure.Data/.googlecloud
+            - /collection-gallery/CollectionGallery.Infrastructure.Data/bin/
+            - /collection-gallery/CollectionGallery.Infrastructure.Data/obj/            
+            - /collection-gallery/CollectionGallery.Shared/bin/
+            - /collection-gallery/CollectionGallery.Shared/obj/

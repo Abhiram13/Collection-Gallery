@@ -1,0 +1,7 @@
+**/.googlecloud
+**/.env
+**/.config
+**/.dockerignore
+**/bin/
+**/obj/
+**/Dockerfile

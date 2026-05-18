@@ -36,7 +36,7 @@ public static class ServiceCollectionExtensions
 
         private IServiceCollection AddDependencyServices()
         {
-            collection.AddHostedService<SubscriberBackgroundService>();
+            // collection.AddHostedService<SubscriberBackgroundService>();
             collection.AddScoped<SubscriberService>();
             collection.AddScoped<ItemService>();
             collection.AddScoped<CollectionService>();

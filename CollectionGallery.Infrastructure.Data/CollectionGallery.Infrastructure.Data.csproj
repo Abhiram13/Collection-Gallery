@@ -23,7 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CollectionGallery.Domain.Models\CollectionGallery.Domain.Models.csproj" />
         <ProjectReference Include="..\CollectionGallery.Shared\CollectionGallery.Shared.csproj" />
     </ItemGroup>
 

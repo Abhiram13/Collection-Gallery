@@ -12,6 +12,7 @@ using CollectionGallery.InfraStructure.Data.Extensions;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 DotEnvironmentVariables.Load();
 
+builder.Configuration.AddJsonFile(Path.Combine("/secrets/", "collection-gallery-data-secrets.json"), optional: true, reloadOnChange: true);
 builder.AddConsoleGoogleSeriLog();
 builder.Services.AddApplicationCollections(builder.Configuration);
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
@@ -46,4 +47,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors();
 app.MapControllers();
+app.MapGet("/", () => new { StatusCode = HttpStatusCode.OK, Message = "This is Collection gallery Data API" });
 app.Run();
