@@ -8,7 +8,7 @@ using ItemTagsTable = CollectionGallery.InfraStructure.Data.Constants.DbTableNam
 namespace CollectionGallery.InfraStructure.Data.Entities;
 
 [Table(ItemTable.TABLE_NAME)]
-public class Item : BaseEntity
+public class ItemEntity : BaseEntity
 {
     [Column(ItemTable.NAME)]
     public string Name { get; set; } = string.Empty;

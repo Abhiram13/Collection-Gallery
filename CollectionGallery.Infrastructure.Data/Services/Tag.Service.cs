@@ -1,6 +1,6 @@
 using System.Text.Json;
-using CollectionGallery.InfraStructure.Data.Enums;
 using CollectionGallery.InfraStructure.Data.Entities;
+using CollectionGallery.InfraStructure.Data.Enums;
 using CollectionGallery.InfraStructure.Data.Tag.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -77,7 +77,7 @@ public class TagService
         }
 
         if (!string.IsNullOrEmpty(body.Name)) existingTag.Name = body.Name;
-        existingTag.UpdatedAt = DateTime.UtcNow;
+        // existingTag.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
         return UpdateFieldResult.Success;

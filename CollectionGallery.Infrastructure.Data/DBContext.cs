@@ -19,22 +19,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
     public DbSet<CollectionFile> CollectionFiles { get; init; }
     public DbSet<Tags> Tags { get; init; }
     public DbSet<ItemTags> ItemTags { get; init; }
-}
-
-public sealed class WriteDbContext : BaseDbContext<WriteDbContext>
-{
-    public WriteDbContext(DbContextOptions<WriteDbContext> options) : base(options) { }
-}
-
-public sealed class ReadDbContext : BaseDbContext<ReadDbContext>
-{
-    public ReadDbContext(DbContextOptions<ReadDbContext> options) : base(options) { }
-}
-
-public sealed class MigrateDbContext : BaseDbContext<MigrateDbContext>
-{
-    public MigrateDbContext(DbContextOptions<MigrateDbContext> options) : base(options) { }
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -126,6 +111,21 @@ public sealed class MigrateDbContext : BaseDbContext<MigrateDbContext>
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
+}
+
+public sealed class WriteDbContext : BaseDbContext<WriteDbContext>
+{
+    public WriteDbContext(DbContextOptions<WriteDbContext> options) : base(options) { }
+}
+
+public sealed class ReadDbContext : BaseDbContext<ReadDbContext>
+{
+    public ReadDbContext(DbContextOptions<ReadDbContext> options) : base(options) { }
+}
+
+public sealed class MigrateDbContext : BaseDbContext<MigrateDbContext>
+{
+    public MigrateDbContext(DbContextOptions<MigrateDbContext> options) : base(options) { }
 }
 
 // public class WriteDbContextFactory : IDesignTimeDbContextFactory<WriteDbContext>

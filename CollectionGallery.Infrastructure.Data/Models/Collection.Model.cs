@@ -2,15 +2,11 @@ using System.Text.Json.Serialization;
 
 namespace CollectionGallery.InfraStructure.Data.Collection.Models;
 
-[Obsolete(message: "", error: true)]
-public class CollectionCreateForm
+public class InsertCollectionDto
 {
-    [JsonPropertyName("name")]
-    public required string Name { get; set; }
-
-    [JsonPropertyName("parent_collection")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public string? ParentFolderName { get; set; } = null;
+    public required string Name { get; init; }
+    public int? ParentCollectionId { get; init; } = null;
+    public int? CoverItemId { get; init; } = null;
 }
 
 public record ParentCollections

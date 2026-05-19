@@ -46,6 +46,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors();
+app.UseExceptionHandler();
 app.MapControllers();
 app.MapGet("/", () => new { StatusCode = HttpStatusCode.OK, Message = "This is Collection gallery Data API" });
 app.Run();

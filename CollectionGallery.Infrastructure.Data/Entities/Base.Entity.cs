@@ -12,11 +12,29 @@ public abstract class BaseEntity
     public int Id { get; set; }
 
     [Column(DbTableNames.Base.CREATED_AT)]
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
     [Column(DbTableNames.Base.UPDATED_AT)]
-    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
 
     [Column(DbTableNames.Base.DELETED_AT)] 
-    public DateTimeOffset? DeletedAt { get; set; } = null;
+    public DateTimeOffset? DeletedAt { get; private set; } = null;
+    
+    protected void SetModifiedAt()
+    {
+        DateTimeOffset now =  DateTimeOffset.UtcNow;
+        CreatedAt = now;
+        UpdatedAt = now;
+    }
+    
+    protected void SetUpdatedAt()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        UpdatedAt = now;
+    }
+    
+    protected void SetDeletedAt()
+    {
+        DeletedAt = DateTimeOffset.UtcNow;
+    }
 }

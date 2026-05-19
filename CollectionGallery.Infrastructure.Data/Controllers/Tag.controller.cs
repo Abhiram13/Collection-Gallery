@@ -27,8 +27,8 @@ public class TagController : ControllerBase
         try
         {
             DateTime dateTime = DateTime.UtcNow;
-            tag.CreatedAt = dateTime;
-            tag.UpdatedAt = dateTime;
+            // tag.CreatedAt = dateTime;
+            // tag.UpdatedAt = dateTime;
             Tags result = await _tagService.SearchAndInsertAsync(tag);
             _logger.LogInformation("Tag ({0}) with Id ({1}) added successfully", tag.Name, tag.Id);
             return StatusCode(201, new ApiResponse<string>

@@ -18,7 +18,7 @@ services:
             ENV: Development
             Postgres__Write__Host: host.docker.internal
             Postgres__Read__Host: host.docker.internal
-            Postgres__Migrate__Host: host.docker.internal        
+            Postgres__Migrate__Host: host.docker.internal
         volumes:   
             - type: bind
               source: /Volumes/SecureDisk/Collection-Gallery/collection-gallery-data-secrets.json

@@ -10,12 +10,14 @@ namespace CollectionGallery.InfraStructure.Data.Repository;
 
 public class CollectionRepository
 {
-    private readonly WriteDbContext _context;
+    private readonly WriteDbContext _writeDbContext;
+    private readonly ReadDbContext _readDbContext;
     private readonly DbSet<CollectionEntity> _collectionDataSet;
 
-    public CollectionRepository(WriteDbContext context)
+    public CollectionRepository(WriteDbContext context, ReadDbContext readDbContext)
     {
-        _context = context;
+        _writeDbContext = context;
+        _readDbContext = readDbContext;
         _collectionDataSet = context.Collections;
     }
     
@@ -55,8 +57,8 @@ public class CollectionRepository
                 GROUP BY parent.id;
         ";
 
-        _context.Database.OpenConnection();
-        DbConnection connection = _context.Database.GetDbConnection();
+        _readDbContext.Database.OpenConnection();
+        DbConnection connection = _readDbContext.Database.GetDbConnection();
         CollectionDetailsById details = new CollectionDetailsById();
         JsonSerializerOptions options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         string? STORAGE_HOST = Environment.GetEnvironmentVariable("STORAGE_SERVER");
@@ -96,19 +98,28 @@ public class CollectionRepository
         return details;
     }
 
-    public Task<CollectionEntity?> GetCollectionByNameAsync(string collectionName)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<List<ParentCollections>> GetParentCollectionsAsync()
     {
         throw new NotImplementedException();
     }
 
-    public Task<CollectionEntity> InsertAsync(CollectionEntity collection)
+    public async Task InsertOneAsync(CollectionEntity collection)
+    {
+        await _writeDbContext.Collections.AddAsync(collection);
+        await _writeDbContext.SaveChangesAsync();
+    }
+
+    public async Task<CollectionEntity?> GetCollectionByIdAsync(int id)
     {
         throw new NotImplementedException();
+    }
+    
+    // TODO: Update projection based on scenarios. Pulling everything does not seems right.
+    public async Task<CollectionEntity?> GetCollectionByNameAsync(string collectionName)
+    {
+        CollectionEntity? collection = await _readDbContext.Collections.Where(c => c.Name == collectionName).FirstOrDefaultAsync();
+        
+        return collection;
     }
 
     public Task<UpdateFieldResult> UpdateByIdAsync(int collectionId, CollectionEntity collection)
