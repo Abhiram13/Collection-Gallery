@@ -32,26 +32,17 @@ public class CollectionController : ControllerBase
         });
     }
 
-    // [HttpGet]
-    // public async Task<ActionResult> ParentCollectionListAsync()
-    // {
-    //     string traceId = Guid.NewGuid().ToString();
-    //     try
-    //     {
-    //         List<ParentCollections> parentCollections = await _collectionService.ListOfParentCollections();
-    //         return StatusCode(200, new ApiResponse<List<ParentCollections>>
-    //         {
-    //             StatusCode = System.Net.HttpStatusCode.OK,
-    //             Result = parentCollections,
-    //             TraceId = traceId
-    //         });
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         _logger.LogError("Exception at Collection Details API. {@ExceptionDetails}", new { message = e.Message, traceId });
-    //         return StatusCode(500);
-    //     }
-    // }
+    [HttpGet]
+    public async Task<IActionResult> GetAllParentCollectionsAsync()
+    {
+        IReadOnlyList<ParentCollection> parentCollections = await _collectionService.GetAllParentCollectionsAsync();
+        
+        return Ok(new ApiResponse<IReadOnlyList<ParentCollection>>
+        {
+            StatusCode = HttpStatusCode.OK,
+            Result = parentCollections
+        });
+    }
     //
     // [HttpGet("{id}")]
     // public async Task<ActionResult<ApiResponse<CollectionDetailsById>>> CollectionDetailsById(int id)

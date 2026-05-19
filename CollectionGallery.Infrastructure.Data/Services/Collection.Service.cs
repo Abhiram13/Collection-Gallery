@@ -43,17 +43,10 @@ public class CollectionService
     //     return collection;
     // }
     //
-    // public async Task<List<ParentCollections>> ListOfParentCollections()
-    // {
-    //     // List<ParentCollections> parentCollections = await _collectionDataSet
-    //     //     .Where(c => c.ParentCollectionId == null)
-    //     //     .Select(c => new ParentCollections { CollectionPic = c.CollectionPic, Id = c.Id, Name = c.Name })
-    //     //     .ToListAsync();
-    //
-    //     // return parentCollections;
-    //
-    //     return new List<ParentCollections>();
-    // }
+    public async Task<IReadOnlyList<ParentCollection>> GetAllParentCollectionsAsync()
+    {
+        return await _repository.GetAllParentCollectionsAsync();
+    }
     //
     // public async Task<CollectionDetailsById> CollectionsById(int id)
     // {

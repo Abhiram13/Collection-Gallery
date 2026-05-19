@@ -18,7 +18,7 @@ public class CollectionController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateFolderAsync([FromBody] ParentCollections form)
+    public async Task<IActionResult> CreateFolderAsync([FromBody] ParentCollection form)
     {
         try
         {

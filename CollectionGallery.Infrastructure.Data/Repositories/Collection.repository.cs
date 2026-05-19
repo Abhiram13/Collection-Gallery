@@ -12,13 +12,11 @@ public class CollectionRepository
 {
     private readonly WriteDbContext _writeDbContext;
     private readonly ReadDbContext _readDbContext;
-    private readonly DbSet<CollectionEntity> _collectionDataSet;
 
     public CollectionRepository(WriteDbContext context, ReadDbContext readDbContext)
     {
         _writeDbContext = context;
         _readDbContext = readDbContext;
-        _collectionDataSet = context.Collections;
     }
     
     public async Task<CollectionDetailsById> GetCollectionById(int collectionId)
@@ -98,9 +96,16 @@ public class CollectionRepository
         return details;
     }
 
-    public Task<List<ParentCollections>> GetParentCollectionsAsync()
+    public async Task<IReadOnlyList<ParentCollection>> GetAllParentCollectionsAsync()
     {
-        throw new NotImplementedException();
+        IReadOnlyList<ParentCollection> list = await _readDbContext.Collections
+            .Select(c => new ParentCollection 
+            {
+                Id = c.Id,
+                Name = c.Name, 
+            }).ToListAsync();
+
+        return list;
     }
 
     public async Task InsertOneAsync(CollectionEntity collection)

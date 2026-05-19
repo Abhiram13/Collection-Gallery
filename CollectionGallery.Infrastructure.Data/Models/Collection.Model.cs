@@ -9,15 +9,10 @@ public class InsertCollectionDto
     public int? CoverItemId { get; init; } = null;
 }
 
-public record ParentCollections
+public record ParentCollection
 {
-    [JsonPropertyName("id")]
     public int Id { get; init; }
-
-    [JsonPropertyName("name")]
     public string Name { get; init; } = string.Empty;
-
-    [JsonPropertyName("collection_pic")]
     public string? CollectionPic { get; init; } = string.Empty;
 }
 

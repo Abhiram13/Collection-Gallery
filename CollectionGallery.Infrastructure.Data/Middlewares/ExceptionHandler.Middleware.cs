@@ -39,6 +39,7 @@ public class InvalidPayloadExceptionHandler : IExceptionHandler
             Status = StatusCodes.Status400BadRequest
         };
         
+        response.StatusCode = StatusCodes.Status400BadRequest;
         await _problemDetailsService.WriteAsync(new ProblemDetailsContext
         {
             ProblemDetails =  problemDetails,
@@ -78,6 +79,7 @@ public class GlobalExceptionHandler : IExceptionHandler
             Status = StatusCodes.Status500InternalServerError
         };
         
+        response.StatusCode = StatusCodes.Status500InternalServerError;
         await _problemDetailsService.WriteAsync(new ProblemDetailsContext
         {
             ProblemDetails =  problemDetails,

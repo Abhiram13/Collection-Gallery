@@ -5,7 +5,6 @@ using System.Net;
 using CollectionGallery.InfraStructure.Data.Configurations;
 using CollectionGallery.InfraStructure.Data.Repository;
 using CollectionGallery.InfraStructure.Middlewares;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace CollectionGallery.InfraStructure.Data.Extensions;
@@ -31,8 +30,10 @@ public static class ServiceCollectionExtensions
         {
             collection.AddEndpointsApiExplorer();
             collection.AddSwaggerGen();
-            collection.AddControllers();
-            collection.ConfigureHttpJsonOptions(options => options.SerializerOptions.PropertyNamingPolicy = null);
+            collection.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNamingPolicy = null;
+            });
             collection.AddRouting();
             collection.AddExceptionHandler<InvalidPayloadExceptionHandler>();
             collection.AddExceptionHandler<GlobalExceptionHandler>();
