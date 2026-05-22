@@ -23,19 +23,19 @@ builder.WebHost.ConfigureKestrel((_, server) => {
 });
 
 WebApplication app = builder.Build();
-using (IServiceScope? scope = app.Services.CreateScope())
-{
-    ILogger<Program> logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    try
-    {
-        MigrateDbContext context = scope.ServiceProvider.GetRequiredService<MigrateDbContext>();
-        context.Database.Migrate();
-    }
-    catch (Exception e)
-    {
-        logger.LogCritical(e, "Exception at DB Migrate Setup ({Message})", e.Message);
-    }
-}
+// using (IServiceScope? scope = app.Services.CreateScope())
+// {
+//     ILogger<Program> logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+//     try
+//     {
+//         MigrateDbContext context = scope.ServiceProvider.GetRequiredService<MigrateDbContext>();
+//         context.Database.Migrate();
+//     }
+//     catch (Exception e)
+//     {
+//         logger.LogCritical(e, "Exception at DB Migrate Setup ({Message})", e.Message);
+//     }
+// }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

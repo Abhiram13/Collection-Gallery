@@ -19,6 +19,7 @@ public class CollectionRepository
         _readDbContext = readDbContext;
     }
     
+    [Obsolete]
     public async Task<CollectionDetailsById> GetCollectionById(int collectionId)
     {
         const string QUERY = @"
@@ -99,11 +100,8 @@ public class CollectionRepository
     public async Task<IReadOnlyList<ParentCollection>> GetAllParentCollectionsAsync()
     {
         IReadOnlyList<ParentCollection> list = await _readDbContext.Collections
-            .Select(c => new ParentCollection 
-            {
-                Id = c.Id,
-                Name = c.Name, 
-            }).ToListAsync();
+            .Select(c => new ParentCollection { Id = c.Id, Name = c.Name })
+            .ToListAsync();
 
         return list;
     }

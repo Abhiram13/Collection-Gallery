@@ -51,7 +51,7 @@ public class InvalidPayloadExceptionHandler : IExceptionHandler
 }
 
 /// <summary>
-/// <see href="https://codewithmukesh.com/blog/problem-details-in-aspnet-core/"/>
+/// <see href="https://codewithmukesh.com/blog/problem-details-in-aspnet-core/">Problem details in ASP.NET Core by Mukesh</see>
 /// </summary>
 public class GlobalExceptionHandler : IExceptionHandler
 {
