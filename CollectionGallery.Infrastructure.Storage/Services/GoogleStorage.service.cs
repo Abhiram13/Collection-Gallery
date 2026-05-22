@@ -1,3 +1,4 @@
+using CollectionGallery.InfraStructure.Storage.Configuration;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Google.Cloud.Storage.Control.V2;
@@ -30,12 +31,14 @@ public class GoogleStorageService
     /// </summary>
     protected readonly string _bucketName;
 
-    // TODO: Update with ENV vars or with Secret manager 
-    public GoogleStorageService()
+    [Obsolete]
+    public GoogleStorageService() { }
+    
+    public GoogleStorageService(StorageSecrets secrets)
     {
-        _credential = GoogleCredential.FromFile(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS"));
+        _credential = GoogleCredential.FromFile(secrets.GoogleCredentialFile);
         _storageClient = StorageClient.Create(_credential);
-        _bucketName = Constants.StorageBucket;
+        _bucketName = secrets.Bucket;
         _storageControlClient = StorageControlClient.Create();
-    }    
+    }
 }

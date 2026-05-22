@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CollectionGallery.InfraStructure.Data.Controllers;
 
 [ApiController]
-[Route("item")]
+[Route("api/items")]
 public class ItemController : ControllerBase
 {
     private readonly ILogger<ItemController> _logger;
