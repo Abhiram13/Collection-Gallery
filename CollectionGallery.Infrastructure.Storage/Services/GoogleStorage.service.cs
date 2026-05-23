@@ -41,4 +41,24 @@ public class GoogleStorageService
         _bucketName = secrets.Bucket;
         _storageControlClient = StorageControlClient.Create();
     }
+
+    public string GenerateSignedUrl(string fileName)
+    {
+        TimeSpan expiresIn = TimeSpan.FromMinutes(5);
+        UrlSigner signer = UrlSigner.FromCredential(GoogleCredential.GetApplicationDefault());
+        UrlSigner.RequestTemplate template = UrlSigner.RequestTemplate
+            .FromBucket(_bucketName)
+            .WithHttpMethod(HttpMethod.Put)
+            .WithObjectName(fileName);
+        
+        string url = signer.Sign(requestTemplate: template, options: UrlSigner.Options.FromDuration(expiresIn));
+        return url;
+    }
+
+    public Google.Apis.Storage.v1.Data.Object GetObjectMetadata(string fileName)
+    {
+        Google.Apis.Storage.v1.Data.Object result = _storageClient.GetObject(bucket: _bucketName, fileName);
+
+        return result;
+    }
 }

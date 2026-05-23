@@ -19,42 +19,11 @@ public class ItemController : ControllerBase
         _itemService = itemService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult> ListAsync()
+    [HttpPost]
+    public async Task<IActionResult> InsertOneAsync([FromBody] ItemInsertDto payload)
     {
-        string traceId = Guid.NewGuid().ToString();
-
-        try
-        {
-            List<ItemList> list = await _itemService.ListAsync();
-            return StatusCode(200, new ApiResponse<List<ItemList>>
-            {
-                TraceId = traceId,
-                Result = list,
-                StatusCode = HttpStatusCode.OK
-            });
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return StatusCode((int)HttpStatusCode.InternalServerError, new ApiResponse<string>
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "Something went wrong",
-                TraceId = traceId
-            });
-        }
-    }
-
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetByIdAsync(int id)
-    {
-        ItemDetails details = await _itemService.ItemByIdAsync(id);
-        return Ok(new ApiResponse<ItemDetails>
-        {
-            StatusCode = HttpStatusCode.OK,
-            Result = details,
-            TraceId = Guid.NewGuid().ToString(),
-        });
+        SignedUrlResponseDto? response = await _itemService.InsertOneItemAsync(payload);
+        
+        return StatusCode(StatusCodes.Status201Created, response);
     }
 }

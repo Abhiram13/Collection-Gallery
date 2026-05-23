@@ -78,3 +78,10 @@ public class ItemDetails
         public string Name { get; set; } = string.Empty;
     }
 }
+
+public record ItemInsertDto
+{
+    public required string Name { get; set; }
+    public string? FileName { get; set; } = string.Empty;
+    public int? CollectionId { get; set; } = null;
+}

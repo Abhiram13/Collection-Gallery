@@ -11,9 +11,14 @@ public record DataSecrets
     
     [ConfigurationKeyName("PORT")]
     public int Port { get; init; }
-    
+
+    public PubSubConfig PubSub { get; init; } = default!;
     public string StorageServer { get; init; } = string.Empty;
-    
+}
+
+public record PubSubConfig
+{
+    public string StorageUploadSubscription { get; init; } = string.Empty;
 }
 
 public record PostgresSecrets

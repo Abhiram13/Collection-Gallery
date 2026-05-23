@@ -9,7 +9,6 @@ services:
             target: dev
             args: # Build time environment args
                 NUGET_PAT: ${NUGET_PAT}                
-                GOOGLE_APPLICATION_CREDENTIALS: /secrets/gcp-credentials.json
         image: collection-gallery-data
         ports:
             - "3001:3001"
@@ -19,6 +18,9 @@ services:
             Postgres__Write__Host: host.docker.internal
             Postgres__Read__Host: host.docker.internal
             Postgres__Migrate__Host: host.docker.internal
+            GOOGLE_APPLICATION_CREDENTIALS: /secrets/gcp-credentials.json
+        depends_on:
+            - storage
         volumes:   
             - type: bind
               source: /Volumes/SecureDisk/Collection-Gallery/collection-gallery-data-secrets.json
@@ -41,3 +43,41 @@ services:
             - /collection-gallery/CollectionGallery.Infrastructure.Data/obj/            
             - /collection-gallery/CollectionGallery.Shared/bin/
             - /collection-gallery/CollectionGallery.Shared/obj/
+    
+    storage:
+        build:
+            context: .
+            dockerfile: CollectionGallery.Infrastructure.Storage/Dockerfile
+            target: dev
+            args:
+                NUGET_PAT: ${NUGET_PAT}                
+        image: collection-gallery-storage
+#        ports:
+#            - "3003:3003"
+        environment:
+            ASPNETCORE_ENVIRONMENT: Development
+            ENV: Development
+            PORT: 3003
+            GOOGLE_APPLICATION_CREDENTIALS: /secrets/gcp-credentials.json
+        volumes:
+            -   type: bind
+                source: /Volumes/SecureDisk/Collection-Gallery/collection-gallery-storage-secrets.json
+                target: /secrets/collection-gallery-storage-secrets.json
+                read_only: true
+            -   type: bind
+                source: /Volumes/SecureDisk/Collection-Gallery/files-management.json
+                target: /secrets/gcp-credentials.json
+                read_only: true
+            -   type: bind
+                source: CollectionGallery.Infrastructure.Storage
+                target: /collection-gallery/CollectionGallery.Infrastructure.Storage
+            -   type: bind
+                source: CollectionGallery.Shared
+                target: /collection-gallery/CollectionGallery.Shared
+
+#               -   /collection-gallery/CollectionGallery.Infrastructure.Storage/.config
+            -   /collection-gallery/CollectionGallery.Infrastructure.Storage/.googlecloud
+            -   /collection-gallery/CollectionGallery.Infrastructure.Storage/bin/
+            -   /collection-gallery/CollectionGallery.Infrastructure.Storage/obj/
+            -   /collection-gallery/CollectionGallery.Shared/bin/
+            -   /collection-gallery/CollectionGallery.Shared/obj/

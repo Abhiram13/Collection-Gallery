@@ -13,9 +13,6 @@ public class ItemEntity : BaseEntity
     [Column(ItemTable.NAME)]
     public string Name { get; set; } = string.Empty;
 
-    [Column(ItemTable.FILE_ID)]
-    public int FileId { get; set; }
-
     [Column(ItemTable.COLLECTION_ID)]
     public int? CollectionId { get; set; } = null;
     
@@ -23,6 +20,20 @@ public class ItemEntity : BaseEntity
     public CollectionFile CollectionFile { get; set; } = default!;
     public ICollection<ItemTags> ItemTags { get; set; } = new List<ItemTags>();
     public ICollection<CollectionEntity> CoveredCollections { get; set; } = new List<CollectionEntity>();
+    
+    private ItemEntity() { }
+
+    public static ItemEntity Create(string name, int? collectionId = null)
+    {
+        ItemEntity item = new ItemEntity
+        {
+            Name = name,
+            CollectionId = collectionId
+        };
+        
+        item.SetModifiedAt();
+        return item;
+    }
 }
 
 [Table(ItemTagsTable.TABLE_NAME)]

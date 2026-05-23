@@ -54,20 +54,12 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
             entity.Property(i => i.CreatedAt).IsRequired();
             entity.Property(i => i.UpdatedAt).IsRequired();
 
-            // One-to-one Item <-> File
-            entity.HasOne(i => i.CollectionFile)
-                .WithOne(f => f.Item)
-                .HasForeignKey<ItemEntity>(i => i.FileId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             // Collection relationship
             entity.HasOne(i => i.Collection)
                 .WithMany(c => c.Items)
                 .HasForeignKey(i => i.CollectionId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Unique constraint for one-to-one
-            entity.HasIndex(i => i.FileId).IsUnique();
             entity.HasIndex(i => i.CollectionId);
             entity.HasQueryFilter(i => i.DeletedAt == null);
         });
@@ -81,9 +73,16 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
             entity.Property(f => f.Bucket);
             entity.Property(f => f.StorageKey).IsRequired().HasMaxLength(1000);
             entity.Property(f => f.Size).IsRequired();
+            entity.Property(f => f.ItemId);
             entity.Property(f => f.CreatedAt).IsRequired();
             entity.Property(f => f.UpdatedAt).IsRequired();
             entity.HasQueryFilter(f => f.DeletedAt == null);
+            
+            // One-to-one File <-> Item
+            entity.HasOne(f => f.Item)
+                .WithOne(i => i.CollectionFile)
+                .HasForeignKey<CollectionFile>(f => f.ItemId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Tags>(entity =>
@@ -128,9 +127,9 @@ public sealed class MigrateDbContext : BaseDbContext<MigrateDbContext>
     public MigrateDbContext(DbContextOptions<MigrateDbContext> options) : base(options) { }
 }
 
-// public class WriteDbContextFactory : IDesignTimeDbContextFactory<WriteDbContext>
+// public class MigrateContextFactory : IDesignTimeDbContextFactory<MigrateDbContext>
 // {
-//     public WriteDbContext CreateDbContext(string[] args)
+//     public MigrateDbContext CreateDbContext(string[] args)
 //     {
 //         // BUG: Hardcoding of the strings is working in the connection string. But loading from configuration is not.
 //         // seems the directory is not right
@@ -140,7 +139,7 @@ public sealed class MigrateDbContext : BaseDbContext<MigrateDbContext>
 //             .AddEnvironmentVariables()
 //             .Build();
 //
-//         DbContextOptionsBuilder<WriteDbContext> optionsBuilder = new DbContextOptionsBuilder<WriteDbContext>();
+//         DbContextOptionsBuilder<MigrateDbContext> optionsBuilder = new DbContextOptionsBuilder<MigrateDbContext>();
 //
 //         // 2. Extract your migration-specific credentials
 //         // You can hardcode this temporarily to test, or pull from config:
@@ -154,6 +153,6 @@ public sealed class MigrateDbContext : BaseDbContext<MigrateDbContext>
 //
 //         optionsBuilder.UseNpgsql(connectionString);
 //
-//         return new WriteDbContext(optionsBuilder.Options);
+//         return new MigrateDbContext(optionsBuilder.Options);
 //     }
 // }

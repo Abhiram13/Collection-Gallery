@@ -19,13 +19,13 @@ public static class DbTableNames
         public const string MIME = "mime_type";
         public const string BUCKET = "bucket";
         public const string STORAGE_KEY = "storage_key";
+        public const string ITEM_ID = "item_id";
     }
 
     public static class Item
     {
         public const string TABLE_NAME = "items";
         public const string NAME = "name";
-        public const string FILE_ID = "file_id";
         public const string COLLECTION_ID = "collection_id";
     }
 

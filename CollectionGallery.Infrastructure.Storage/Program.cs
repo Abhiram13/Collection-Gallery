@@ -12,15 +12,16 @@ DotEnvironmentVariables.Load();
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables().Build();
+builder.Configuration.AddJsonFile(Path.Combine("/secrets/", "collection-gallery-storage-secrets.json"), optional: true, reloadOnChange: true);
 builder.AddConsoleGoogleSeriLog();
 builder.Services.AddOptions<StorageSecrets>().Bind(builder.Configuration).ValidateOnStart();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// builder.Services.AddSingleton<ItemService>();
 builder.Services.AddSingleton<PublisherService>();
 builder.Services.AddSingleton<ImageService>();
 builder.Services.AddSingleton<StorageSecrets>(sp => sp.GetRequiredService<IOptions<StorageSecrets>>().Value);
-builder.Services.AddControllers();
+builder.Services.AddScoped<GoogleStorageService>();
+builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 builder.WebHost.ConfigureKestrel((_, server) => {
     string portNumber = Environment.GetEnvironmentVariable("PORT") ?? "3003";
     int port = int.Parse(portNumber);

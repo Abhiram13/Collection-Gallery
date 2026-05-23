@@ -25,6 +25,9 @@ public class CollectionFile : BaseEntity
     
     [Column(FileTable.STORAGE_KEY)]
     public string StorageKey { get; set; } = string.Empty;
+    
+    [Column(FileTable.ITEM_ID)]
+    public int ItemId { get; set; }
 
     public ItemEntity Item { get; set; } = default!;
 }

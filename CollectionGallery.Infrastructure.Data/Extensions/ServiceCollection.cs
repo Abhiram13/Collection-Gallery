@@ -3,6 +3,7 @@ using Abhiram.Secrets.Providers;
 using CollectionGallery.InfraStructure.Data.Services;
 using System.Net;
 using CollectionGallery.InfraStructure.Data.Configurations;
+using CollectionGallery.InfraStructure.Data.HttpClients;
 using CollectionGallery.InfraStructure.Data.Repository;
 using CollectionGallery.InfraStructure.Middlewares;
 using Microsoft.Extensions.Options;
@@ -34,6 +35,7 @@ public static class ServiceCollectionExtensions
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = null;
             });
+            collection.AddHttpClient<CloudStorageHttpClient>();
             collection.AddRouting();
             collection.AddExceptionHandler<InvalidPayloadExceptionHandler>();
             collection.AddExceptionHandler<GlobalExceptionHandler>();
@@ -44,13 +46,14 @@ public static class ServiceCollectionExtensions
 
         private IServiceCollection AddDependencyServices()
         {
-            // collection.AddHostedService<SubscriberBackgroundService>();
             collection.AddScoped<SubscriberService>();
             collection.AddScoped<ItemService>();
             collection.AddScoped<CollectionService>();
             collection.AddScoped<TagService>();
             collection.AddScoped<CollectionRepository>();
+            collection.AddScoped<ItemRepository>();
             collection.AddSingleton<DataSecrets>(sp => sp.GetRequiredService<IOptions<DataSecrets>>().Value);
+            collection.AddHostedService<SubscriberBackgroundService>();
 
             return collection;
         }
