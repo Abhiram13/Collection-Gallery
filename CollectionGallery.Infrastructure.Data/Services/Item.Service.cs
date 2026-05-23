@@ -28,8 +28,7 @@ public class ItemService
     {
         ItemEntity itemEntity = ItemEntity.Create(item.Name, item.CollectionId);
         ItemEntity insertedItem = await _itemRepository.InsertOneItemAsync(itemEntity);
-        // int id = insertedItem.Id;
-        SignedUrlResponseDto? response = await _cloudStorageHttpClient.GetSignedUrlAsync(new GetSignedUrlDto { FileName = item.FileName! });
+        SignedUrlResponseDto? response = await _cloudStorageHttpClient.GetSignedUrlAsync(new GetSignedUrlDto { FileName = item.FileName!, ItemId = insertedItem.Id });
 
         return response;
     }

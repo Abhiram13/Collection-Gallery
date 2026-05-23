@@ -46,14 +46,15 @@ public static class ServiceCollectionExtensions
 
         private IServiceCollection AddDependencyServices()
         {
-            collection.AddScoped<SubscriberService>();
             collection.AddScoped<ItemService>();
+            collection.AddScoped<FileService>();
             collection.AddScoped<CollectionService>();
             collection.AddScoped<TagService>();
             collection.AddScoped<CollectionRepository>();
             collection.AddScoped<ItemRepository>();
+            collection.AddScoped<FileRepository>();
             collection.AddSingleton<DataSecrets>(sp => sp.GetRequiredService<IOptions<DataSecrets>>().Value);
-            collection.AddHostedService<SubscriberBackgroundService>();
+            collection.AddHostedService<SubscriberService>();
 
             return collection;
         }

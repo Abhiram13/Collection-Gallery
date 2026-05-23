@@ -19,16 +19,10 @@ public class GoogleCloudStorageController : ControllerBase
     [HttpPost]
     public IActionResult GetSignedUrl([FromBody] GetSignedUrlDto request)
     {
-        string url = _storageService.GenerateSignedUrl(request.FileName);
+        string url = _storageService.GenerateSignedUrl(request);
         return Ok(new SignedUrlResponseDto
         {
             SignedUrl = url
         });
-    }
-
-    [HttpGet("{fileName}")]
-    public IActionResult GetObjectMetaData([FromRoute] string fileName)
-    {
-        return Ok(_storageService.GetObjectMetadata(fileName));
     }
 }

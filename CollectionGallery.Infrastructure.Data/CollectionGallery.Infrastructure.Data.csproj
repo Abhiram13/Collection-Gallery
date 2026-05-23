@@ -26,4 +26,8 @@
         <ProjectReference Include="..\CollectionGallery.Shared\CollectionGallery.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Utilities\" />
+    </ItemGroup>
+
 </Project>

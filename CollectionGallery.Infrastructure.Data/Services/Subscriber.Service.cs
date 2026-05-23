@@ -1,72 +1,73 @@
 using System.Text.Json;
 using CollectionGallery.InfraStructure.Data.Configurations;
 using CollectionGallery.InfraStructure.Data.Enums;
+using CollectionGallery.InfraStructure.Data.File.Models;
 using CollectionGallery.InfraStructure.Data.Item.Models;
 using Google.Apis.Storage.v1;
 using Google.Cloud.PubSub.V1;
 
 namespace CollectionGallery.InfraStructure.Data.Services;
 
-public class SubscriberService
+public class SubscriberService : BackgroundService
 {
-    private readonly string _subscriberId;
-    private readonly string _projectId;
-    private readonly ILogger<StorageService> _logger;
+    private readonly ILogger<SubscriberService> _logger;
     private readonly DataSecrets _secrets;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private FileService _fileService;
+    private SubscriberClient _subscriberClient { get; set; }
 
-    public SubscriberService(ILogger<StorageService> logger, DataSecrets secrets)
+    public SubscriberService(ILogger<SubscriberService> logger, DataSecrets secrets, IServiceScopeFactory scopeFactory)
     {
         _secrets = secrets;
-        _projectId = _secrets.GoogleProjectId;
-        _subscriberId = _secrets.PubSub.StorageUploadSubscription;
         _logger = logger;
+        _scopeFactory = scopeFactory;
     }
 
-    public async Task SubscribeAsync(CancellationToken cancellationToken)
+    public async Task SubscribeAsync(CancellationToken _)
     {
-        SubscriptionName subscriptionName = SubscriptionName.FromProjectSubscription(_projectId, _subscriberId);
-        SubscriberClient subscriber = await SubscriberClient.CreateAsync(subscriptionName);
-        
-        cancellationToken.Register(() =>
+        await _subscriberClient.StartAsync(async (PubsubMessage message, CancellationToken _) =>
         {
-            subscriber.StopAsync(TimeSpan.FromSeconds(5));
-        });
-        
-        Task subscriberTask = subscriber.StartAsync(async (PubsubMessage message, CancellationToken _) =>
-        {
-            string text = System.Text.Encoding.UTF8.GetString(message.Data.ToArray());
-            _logger.LogInformation(text);
-            // string traceId = message.Attributes["trace-id"];
-            // if (message.Attributes["event"] == "FileUpload")
-            // {
-            //     FileUploadResultObject? resultObject = JsonSerializer.Deserialize<FileUploadResultObject>(text);
-            //     if (resultObject is not null)
-            //     {
-            //         _logger.LogInformation($"Received message at {subscriber.SubscriptionName} subscriber with Trace ID: {traceId}");
-            //         // MethodStatus status = await _itemService.InsertItemAsync(resultObject);
-            //         return SubscriberClient.Reply.Ack;
-            //     }
-            //     else
-            //     {
-            //         _logger.LogWarning($"No Data {text} was received to the Subscriber {subscriber} with Trace ID {traceId}");
-            //         return SubscriberClient.Reply.Nack;
-            //     }
-            // }
+            try
+            {
+                using IServiceScope scope = _scopeFactory.CreateScope();
+                _fileService = scope.ServiceProvider.GetRequiredService<FileService>();
+                
+                string text = System.Text.Encoding.UTF8.GetString(message.Data.ToArray());
             
-            return SubscriberClient.Reply.Ack;
+                StrorageUploadObjectDto? result = JsonSerializer.Deserialize<StrorageUploadObjectDto>(text);
+
+                if (result is null)
+                {
+                    return SubscriberClient.Reply.Ack;
+                }
+
+                InsertCollectionFileDto payload = new InsertCollectionFileDto
+                {
+                    ItemId = Convert.ToInt32(result.MetaData.ItemId),
+                    Bucket = result.Bucket,
+                    Extension = result.ContentType,
+                    MimeType = result.ContentType,
+                    Name = result.Name,
+                    Size = Convert.ToInt64(result.Size)
+                };
+                
+                await _fileService.InsertOneAsync(payload);
+                return SubscriberClient.Reply.Ack;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return SubscriberClient.Reply.Ack;
+            }
         });
+    }
 
-        try
-        {
-            await Task.Delay(Timeout.Infinite, cancellationToken); // Keeps it alive
-        }
-        catch (OperationCanceledException)
-        {
-            await subscriber.StopAsync(CancellationToken.None); // Stop listener
-        }
-
-        await subscriberTask;
-
-        _logger.LogInformation($"Listening for messages on {subscriptionName}");
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        SubscriptionName subscriptionName = SubscriptionName.FromProjectSubscription(_secrets.GoogleProjectId, _secrets.PubSub.StorageUploadSubscription);
+        _subscriberClient = await SubscriberClient.CreateAsync(subscriptionName);
+        
+        _logger.LogInformation("Subscriber background service starting...");
+        await SubscribeAsync(stoppingToken);
     }
 }
