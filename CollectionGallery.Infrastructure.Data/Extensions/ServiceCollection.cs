@@ -53,6 +53,7 @@ public static class ServiceCollectionExtensions
             collection.AddScoped<CollectionRepository>();
             collection.AddScoped<ItemRepository>();
             collection.AddScoped<FileRepository>();
+            collection.AddScoped<TagRepository>();
             collection.AddSingleton<DataSecrets>(sp => sp.GetRequiredService<IOptions<DataSecrets>>().Value);
             collection.AddHostedService<SubscriberService>();
 

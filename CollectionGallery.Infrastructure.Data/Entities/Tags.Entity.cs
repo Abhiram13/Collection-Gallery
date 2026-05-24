@@ -6,10 +6,24 @@ using TagTable = CollectionGallery.InfraStructure.Data.Constants.DbTableNames.Ta
 namespace CollectionGallery.InfraStructure.Data.Entities;
 
 [Table(TagTable.TABLE_NAME)]
-public class Tags : BaseEntity
+public class TagEntity : BaseEntity
 {
     [Column(TagTable.NAME)]
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; private set; } = string.Empty;
 
     public ICollection<ItemTags> ItemTags { get; set; } = new List<ItemTags>();
+    
+    private TagEntity() { }
+
+    public static TagEntity Create(string name)
+    {
+        TagEntity tag = new TagEntity
+        {
+            Name = name.ToLower().Trim()
+        };
+        
+        tag.SetModifiedAt();
+        
+        return tag;
+    }
 }

@@ -17,7 +17,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
     public DbSet<CollectionEntity> Collections { get; init; }
     public DbSet<ItemEntity> Items { get; init; }
     public DbSet<CollectionFile> CollectionFiles { get; init; }
-    public DbSet<Tags> Tags { get; init; }
+    public DbSet<TagEntity> Tags { get; init; }
     public DbSet<ItemTags> ItemTags { get; init; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -85,7 +85,7 @@ public abstract class BaseDbContext<TContext> : DbContext where TContext : DbCon
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<Tags>(entity =>
+        modelBuilder.Entity<TagEntity>(entity =>
         {
             entity.ToTable(TagTable.TABLE_NAME).HasKey(t => t.Id);
             entity.Property(t => t.Name).IsRequired().HasMaxLength(100);

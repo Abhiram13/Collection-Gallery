@@ -2,11 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace CollectionGallery.InfraStructure.Data.Tag.Models;
 
-public record TagList
+public record InsertTagDto
 {
-    [JsonPropertyName("id")]
-    public int Id { get; set; }
-
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; init; }
 }

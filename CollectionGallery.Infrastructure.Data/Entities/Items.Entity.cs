@@ -46,5 +46,5 @@ public class ItemTags
     public int TagId { get; set; }
     
     public ItemEntity Item { get; set; } = default!;
-    public Tags Tag { get; set; } = default!;
+    public TagEntity Tag { get; set; } = default!;
 }

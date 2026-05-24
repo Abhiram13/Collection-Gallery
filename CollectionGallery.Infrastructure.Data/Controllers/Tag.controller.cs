@@ -1,3 +1,4 @@
+using System.Net;
 using CollectionGallery.InfraStructure.Data.Services;
 using CollectionGallery.InfraStructure.Data.Entities;
 using CollectionGallery.InfraStructure.Data.Tag.Models;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CollectionGallery.InfraStructure.Data.Controllers;
 
 [ApiController]
-[Route("tag")]
+[Route("api/tags")]
 public class TagController : ControllerBase
 {
     private readonly ILogger<TagController> _logger;
@@ -20,47 +21,23 @@ public class TagController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> AddAsync([FromBody] Tags tag)
+    public async Task<IActionResult> InsertAsync([FromBody] InsertTagDto dto)
     {
-        string traceId = Guid.NewGuid().ToString();
+        bool isTagInserted = await _tagService.InsertAsync(dto.Name);
 
-        try
+        if (isTagInserted)
         {
-            DateTime dateTime = DateTime.UtcNow;
-            // tag.CreatedAt = dateTime;
-            // tag.UpdatedAt = dateTime;
-            Tags result = await _tagService.SearchAndInsertAsync(tag);
-            _logger.LogInformation("Tag ({0}) with Id ({1}) added successfully", tag.Name, tag.Id);
-            return StatusCode(201, new ApiResponse<string>
+            return StatusCode(StatusCodes.Status201Created, new ApiResponse
             {
-                StatusCode = System.Net.HttpStatusCode.Created,
-                TraceId = traceId,
-                Message = $"Tag ({tag.Name}) with Id ({tag.Id}) added successfully"
+                Message = "Tag(s) inserted successfully",
+                StatusCode = HttpStatusCode.Created
             });
         }
-        catch (Exception e)
+        
+        return StatusCode(StatusCodes.Status304NotModified, new ApiResponse
         {
-            _logger.LogError(e, e.Message);
-            return StatusCode(500, new ApiResponse<string>
-            {
-                StatusCode = System.Net.HttpStatusCode.InternalServerError,
-                TraceId = traceId,
-                Message = "Something went wrong"
-            });
-        }
-    }
-
-    [HttpGet]
-    public async Task<ActionResult> ListAsync()
-    {
-        List<TagList> tags = await _tagService.ListTagsAsync();
-        return StatusCode(200, tags);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateByIdAsync(int tagId, Tags body)
-    {
-        await _tagService.UpdateByIdAsync(tagId, body);
-        return Ok();
+            Message = "Tag(s) already exists",
+            StatusCode = HttpStatusCode.NotModified
+        });
     }
 }
