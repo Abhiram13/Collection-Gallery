@@ -24,6 +24,5 @@ public sealed record ApiResponse
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? TraceId { get; set; }
     
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public required string Message { get; set; }
 }

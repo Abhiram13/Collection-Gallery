@@ -6,8 +6,8 @@ namespace CollectionGallery.Infrastructure.Storage.Services;
 
 public class PublisherService
 {
-    private readonly string _topicName = Constants.TopicName;
-    private readonly string _projectId = Constants.ProjectId;
+    private readonly string _topicName = string.Empty;
+    private readonly string _projectId = string.Empty;
 
     /// <summary>
     /// Publishes a message to a Google Cloud Pub/Sub topic.

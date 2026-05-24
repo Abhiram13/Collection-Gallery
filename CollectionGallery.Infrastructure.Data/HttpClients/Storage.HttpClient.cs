@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace CollectionGallery.InfraStructure.Data.HttpClients;
 
-public class CloudStorageHttpClient : HttpClient
+public class CloudStorageHttpClient
 {
     private readonly HttpClient _httpClient;
     private readonly DataSecrets _secrets;

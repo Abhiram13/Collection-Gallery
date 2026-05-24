@@ -31,9 +31,6 @@ public class GoogleStorageService
     /// The name of the Google Cloud Storage bucket used by this class.
     /// </summary>
     protected readonly string _bucketName;
-
-    [Obsolete]
-    public GoogleStorageService() { }
     
     public GoogleStorageService(StorageSecrets secrets)
     {
